@@ -7,6 +7,18 @@ dist/
 build/
 .next/
 .turbo/
+.eslintcache
+
+# Pack artefacts (built locally; live on R2 in Phase 1+)
+packs/
+
+# Cloudflare tooling
+.wrangler/
+
+# Local SQLite (Expo / dev)
+*.sqlite
+*.sqlite-journal
+*.db
 
 # Environment
 .env

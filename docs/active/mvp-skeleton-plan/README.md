@@ -1,31 +1,45 @@
 # MVP Skeleton Plan — Status Tracker
 
-Scaffold the minimum end-to-end loop for rcao-quiz: a Next.js player, a Fastify API, a Postgres schema, anonymous play, and a hand-curated pool of ~20 seed questions spread across text/math and image/geography. Proves the play flow before any AI pipeline work.
+Prove the entire rcao-quiz loop end-to-end, locally, with no AI and no accounts: a Next.js reels-style feed, a tiny Fastify API, a Postgres schema, a pack builder, and ~50 hand-written text questions across three subjects. Text-only (images deferred to Phase 2). Client-graded. Batched sync.
 
 **Master Plan:** [plan.md](plan.md)
 **Created:** 2026-04-19
 **Status:** PLANNING — 0 / 10 tasks started
 **Target Phase:** Phase 0 (1–2 weeks)
-**Depends on:** [Architecture](../../reference/architecture.md)
+**Depends on:** [Architecture](../../reference/architecture.md), [ADR 0001](../../reference/adr/0001-reels-feed-not-session-rounds.md), [ADR 0002](../../reference/adr/0002-client-heavy-cost-optimized.md), [ADR 0003](../../reference/adr/0003-text-only-mvp-client-templates.md)
 
 ## Tasks at a glance
 
 | Task | Title | Effort | Status | Blocked By |
 |------|-------|--------|--------|------------|
 | MVP-01 | Monorepo scaffold (pnpm workspaces: `apps/web`, `apps/api`, `packages/sdk`) | S | Pending | -- |
-| MVP-02 | Postgres schema + migration tool (users, subjects, questions, quiz_sessions, answers, question_stats) | M | Pending | MVP-01 |
-| MVP-03 | `packages/sdk` — Zod schemas for Question, Session, Answer, plus typed REST client | S | Pending | MVP-01 |
-| MVP-04 | Fastify API skeleton with anonymous guest-JWT, `/sessions/new`, `/answer`, `/complete` | M | Pending | MVP-02, MVP-03 |
-| MVP-05 | Seed data loader — 20 hand-written questions (10 text/math + 10 image/geography) | S | Pending | MVP-02 |
-| MVP-06 | Next.js player UI — session screen, question card (text + image), result screen | M | Pending | MVP-03 |
-| MVP-07 | Wire Next.js to API with SDK; anonymous play end-to-end | S | Pending | MVP-04, MVP-06 |
-| MVP-08 | In-memory rate limit + recent-seen tracker on API | XS | Pending | MVP-04 |
-| MVP-09 | Local dev tooling — docker-compose (Postgres), `.env.example`, `pnpm dev` orchestration | S | Pending | MVP-01 |
-| MVP-10 | Manual QA pass + README updates | XS | Pending | MVP-07 |
+| MVP-02 | Postgres schema + `node-pg-migrate` migrations (users, subjects, questions, interactions, question_stats) | M | Pending | MVP-01 |
+| MVP-03 | `packages/sdk` — Zod schemas for Question, Pack, Interaction, SyncRequest; template renderer primitives | M | Pending | MVP-01 |
+| MVP-04 | Fastify API skeleton — `/auth/anonymous`, `/auth/google` (stub), `/packs/manifest`, `/sync`, health | M | Pending | MVP-02, MVP-03 |
+| MVP-05 | Seed content — 50+ hand-written text questions across 3 subjects, loaded as `status='approved'` | S | Pending | MVP-02 |
+| MVP-06 | Pack builder script (`pnpm packs:build`) — snapshots approved questions to pack JSONs + manifest on local disk for MVP, R2 plumbing stubbed | S | Pending | MVP-02, MVP-05 |
+| MVP-07 | Next.js feed UI — scroll-snap vertical feed, `QuestionCard` with template renderer, answer / skip / impression interactions | L | Pending | MVP-03 |
+| MVP-08 | Client storage — IndexedDB layer for pack cache, two-tier dedupe (acted ring buffer + impressions bloom filter), personal stats, interaction buffer | M | Pending | MVP-03 |
+| MVP-09 | Wire client to API — manifest fetch, pack download, batched `/sync` flush on timer + backgrounding | M | Pending | MVP-04, MVP-07, MVP-08 |
+| MVP-10 | Local dev tooling + QA pass — docker-compose Postgres, `.env.example`, `pnpm dev`, manual walk-through of the whole loop, README update | S | Pending | MVP-09 |
+
+**Effort legend:** XS < 2h, S ≈ 2–4h, M ≈ 4–10h, L ≈ 10–20h, XL > 20h.
 
 ## Exit criteria
 
-- A user can open `localhost:3000`, start a quiz, answer ~10 questions (mix of text/math + image/geography), see their score, and start again — all anonymously.
-- API runs as a single Node process with Postgres as the only backing service.
-- No Redis, no external queue, no auth provider wired up yet (Phase 1 concern).
-- Seed pool is human-written — no AI generation yet (Phase 2 concern).
+- A user opens `localhost:3000`, scrolls a vertical feed of text-card questions styled by subject-themed templates, taps an answer or skips, and sees their personal stats (today's correct count, current streak) update live.
+- Interactions flush to `POST /sync` every ~30s, land in the `interactions` table, and update `question_stats`.
+- Everything survives a browser refresh (pack cache + stats persisted in IndexedDB).
+- The whole thing runs on a single Node process + a local Postgres container. No Redis, no external queue, no auth provider, no AI generation.
+- Content is ~50 hand-approved seed questions across 3 subjects; packs are written to local disk (R2 plumbing is stubbed behind an interface, swapped in during Phase 1).
+
+## Explicitly out of scope for Phase 0
+
+- Google sign-in (Phase 1)
+- AI question generation and admin review (Phase 1)
+- Real R2 deployment — the pack builder writes to a local `./packs/` directory that the web app serves (Phase 1 swaps in the real R2 upload)
+- Leaderboards of any kind (deferred to Phase 4+)
+- Mobile client (Phase 3)
+- Images and image generation pipeline (Phase 2)
+- Production hosting, CI/CD
+- Analytics beyond console logs + rows in the `interactions` table

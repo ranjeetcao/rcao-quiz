@@ -1,25 +1,32 @@
 # rcao-quiz
 
-Casual, reels-style quiz app. Vertical-scroll feed of text question cards; answer or skip at your pace. AI-generated content behind the scenes with human review. Web + mobile clients, tiny Node/TS backend, question packs served from a zero-egress CDN, client-side grading.
+Casual, reels-style quiz app for **iOS and Android**. Vertical-scroll feed of text question cards; answer or skip at your pace. AI-generated content with cascading AI review. Zero hosted compute at runtime — the app reads packs from a CDN and fires GA4 events. Content generation, stats, and the daily flag digest run on a scheduled host.
 
-**Status:** Pre-MVP. Architecture v2 approved; Phase 0 skeleton scheduled next.
+**Status:** Pre-MVP. Architecture approved; Phase 0 scaffolding next.
 
 **License:** Proprietary — see [LICENSE](LICENSE). Not for redistribution.
-
-**Key decisions:** [ADR 0001 (reels, not rounds)](docs/reference/adr/0001-reels-feed-not-session-rounds.md) · [ADR 0002 (client-heavy, cost-optimized)](docs/reference/adr/0002-client-heavy-cost-optimized.md) · [ADR 0003 (text-only for MVP)](docs/reference/adr/0003-text-only-mvp-client-templates.md)
 
 ## Documentation
 
 All planning and architecture lives in [`docs/`](docs/README.md).
 
-- [Architecture](docs/reference/architecture.md) — the system design we're building against.
+- [Architecture](docs/reference/architecture.md) — the system we're building against.
 - [Active plans](docs/README.md#active-plans) — what we're working on now.
-- [Completed plans](docs/README.md#completed-plans) — shipped work, archived.
+- [ADRs](docs/reference/adr/) — load-bearing decisions and the why behind them.
+
+### Key decisions
+
+- [ADR 0001](docs/reference/adr/0001-reels-feed-not-session-rounds.md) — reels feed, not exam rounds
+- [ADR 0002](docs/reference/adr/0002-client-heavy-cost-optimized.md) — client-graded play, server-less runtime
+- [ADR 0003](docs/reference/adr/0003-text-only-mvp-client-templates.md) — text-only MVP with client templates
+- [ADR 0004](docs/reference/adr/0004-statistical-percentile-leaderboards.md) — percentile social-proof, not ordinal leaderboards
+- [ADR 0005](docs/reference/adr/0005-git-content-store.md) — content as JSON in the git repo
+- [ADR 0006](docs/reference/adr/0006-ai-review-flag-digest.md) — AI-only review with user flags + Slack digest
 
 ## Running locally
 
-Nothing to run yet — the full Phase 0 quickstart lands in [MVP-10](docs/active/mvp-skeleton-plan/plan.md#mvp-10--local-dev-tooling--qa-pass). Node 20 (see `.nvmrc`) and `pnpm` will be the baseline once the workspace is scaffolded.
+Quickstart lands in [MVP-10](docs/active/mvp-skeleton-plan/plan.md#mvp-10--local-dev-tooling--qa-pass). Phase 0 baseline: Node 20 (see `.nvmrc`), `pnpm`, an Expo dev environment (Xcode for iOS Simulator, Android Studio for one Android target).
 
 ## Guiding principle
 
-Stay boring and lean. In-memory wherever we can, Redis only for leaderboards, no external queue brokers until we actually need them.
+Stay boring and lean. No runtime backend until a real requirement forces one. Mobile-only — no web app.

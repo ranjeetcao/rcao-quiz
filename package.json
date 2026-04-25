@@ -1,0 +1,32 @@
+{
+  "name": "rcao-quiz",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Casual reels-style quiz app for iOS and Android.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "typecheck": "pnpm -r --parallel typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r --parallel test",
+    "mobile": "pnpm --filter @rcao-quiz/mobile",
+    "sdk": "pnpm --filter @rcao-quiz/sdk",
+    "dev": "pnpm --filter @rcao-quiz/mobile start",
+    "packs:build": "tsx scripts/packs-build.ts",
+    "packs:serve": "tsx scripts/packs-serve.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "eslint": "^9.13.0",
+    "@eslint/js": "^9.13.0",
+    "typescript-eslint": "^8.10.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3"
+  }
+}

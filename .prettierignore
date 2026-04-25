@@ -1,0 +1,14 @@
+node_modules
+.expo
+dist
+build
+web-build
+.next
+.turbo
+packs
+ios/Pods
+android/build
+android/app/build
+android/.gradle
+pnpm-lock.yaml
+*.tsbuildinfo

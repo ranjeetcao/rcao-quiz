@@ -1,39 +1,39 @@
-# ADR 0004 — Statistical percentile leaderboards, not ordinal ranking
+# ADR 0004 — Percentile social-proof, not ordinal leaderboards
 
 **Status:** ACCEPTED
-**Date:** 2026-04-19
-**Related:** [ADR 0001](0001-reels-feed-not-session-rounds.md), [ADR 0002](0002-client-heavy-cost-optimized.md)
 
 ## Context
 
-Casual reels apps live or die by retention, and the single strongest retention lever in quiz products is some variant of "how do I stack up against other people." The original architecture (v1) planned global leaderboards served from Redis. Once we committed to client-graded play (ADR 0002), authoritative per-user ranking became untrustworthy — a user can self-report any score they want, and we shouldn't put unverifiable numbers into a ranking that implies they mean something.
+Casual reels apps live or die by retention, and the strongest retention lever in quiz products is "how do I stack up against other people." But:
 
-At the same time, the `interactions` data that flows through `/sync` *is* legitimately useful in aggregate. Individual users can lie about their own outcomes, but the distribution of outcomes across thousands of players washes out small-scale lying. That lets us compute statistically honest things — per-question difficulty, per-pack score distributions, per-subject accuracy benchmarks — without relying on trust.
+- We grade on the client (ADR 0002) and ship answer keys to clients. Authoritative per-user ranking would be untrustworthy — users can self-report any score.
+- We don't run a server (ADR 0002). There's no place to enforce ranking integrity even if we wanted to.
 
-The product question is whether a statistics-based leaderboard-equivalent provides enough of the motivational hit of real leaderboards to move retention, given we're giving up ordinal bragging rights. Evidence from Duolingo XP leagues, Codeforces rating bands, 23andMe percentile reports, and Wordle's "you're in the top N%" screens strongly suggests yes — what actually motivates most users is **self-placement inside a distribution**, not knowing they're #14 vs #15.
+What we *do* have is the GA4 / BigQuery event firehose. Individual users can lie about their own outcomes, but the distribution of outcomes across thousands of players washes out small-scale lying. That lets us compute statistically honest aggregates — per-question difficulty, per-pack score distributions, per-subject accuracy benchmarks — without relying on trust.
+
+The product question is whether statistics-based social proof provides enough motivational hit to move retention given we're giving up ordinal bragging rights. Evidence from Duolingo XP leagues, Codeforces rating bands, 23andMe percentile reports, and Wordle's "top N%" screen says yes — what motivates most users is **self-placement inside a distribution**, not knowing they're #14 vs #15.
 
 ## Decision
 
-**Replace ordinal leaderboards with statistical percentile social-proof for the casual feed.** Concretely:
+**Statistical percentile social-proof for the casual feed**, in three shapes:
 
-### Shape of the feature
+- **Per-question difficulty pill** — shown after a card is answered. "Only 23% of players got this right — nice one" or "Most people nail this, you'll get the next." Powered by aggregate correct-rate.
+- **Pack-level percentile card** — shown at natural client-side breakpoints (every ~10 answered cards or after a pause). "You got 7 of your last 10 — better than 68% of players on this pack." User's score is computed locally from the recent interaction buffer; the distribution comes from the stats pack.
+- **Weekly subject mastery summary** — "Top 15% this week in geography." Bucket-based, not ordinal.
 
-- **Per-question difficulty pill** — shown after a card is answered. "Only 23% of players got this right — nice one" or "Most people nail this, you'll get the next." Powered by per-question aggregate correct-rate.
-- **Pack-level percentile card** — shown at natural client-side breakpoints (every ~10 answered cards or after a pause). "You got 7 of your last 10 — better than 68% of players on this pack." User's score is client-computed from the local interaction buffer; the distribution to compare against is server-computed.
-- **Weekly subject mastery summary** — "Top 15% this week in geography." Non-ordinal framing by bucket, not position.
-- **No ordinal global leaderboards for casual play.** If a competitive use case ever earns its keep, it lands as a separate **server-graded** daily-challenge / tournament mode with its own code path and its own small surface area. The casual feed stays client-graded and stats-decorated.
+**No global ordinal leaderboards.** If a competitive use case ever earns its keep, it lands as a separate **server-graded** mode (Phase 5+) on its own surface. The casual feed stays client-graded and stats-decorated.
 
-### How stats are delivered
+### Stats artefacts on R2
 
-Stats live in **separate CDN artefacts** distinct from content packs. For each content pack `pack_X` there is a companion `stats-{pack_X}-{date}.json` on R2, rebuilt daily (or on demand) and served with a shorter cache TTL (`max-age=3600`).
+For each content pack `pack_X` there is a companion **stats pack** `stats_<pack_id>_<date>.json` on R2. Rebuilt daily by a scheduled job that reads from BigQuery; served with `max-age=3600` so it refreshes faster than content packs but isn't on the user-request hot path.
 
-Content packs remain immutable and infinitely cacheable. Stats packs refresh often. The two live on the same CDN but with opposing cache strategies, which is easy to do when they're different objects and impossible to do when they're one object.
+A second small artefact, **`stats_subject_percentiles_<date>.json`**, carries cross-pack subject-level percentiles (`p25/p50/p75/p90` per subject) for the weekly mastery summary.
 
-A client fetches the stats pack lazily: it downloads the content pack first (needed to play), and fetches stats opportunistically (needed only to render pills). If the stats pack is missing or stale, the client renders without decorations — graceful degradation, offline play still works.
+Content packs stay infinitely cacheable; stats packs are decoration. If a stats pack is missing or stale, the client renders the feed without pills and percentiles — graceful degradation, offline play still works.
 
-### Stats pack schema (v1)
+### Stats pack shape (v1)
 
-```
+```json
 {
   "stats_pack_id": "stats_geography_v12_2026-04-20",
   "for_pack_id":   "pack_geography_v12_2026-04-19",
@@ -46,76 +46,70 @@ A client fetches the stats pack lazily: it downloads the content pack first (nee
       "correct_count": 424,
       "skip_count": 160,
       "correct_rate": 0.23,
+      "attempt_rate": 0.92,
       "skip_rate": 0.08,
-      "sample_confidence": "high"   // "low" | "medium" | "high"
+      "sample_confidence": "high"
     }
   },
   "pack_score_distribution": {
     "attempts_considered": 9120,
+    "window_size": 10,
     "percentile_by_score": [
       { "score": 0, "p": 0 },
       { "score": 5, "p": 42 },
+      { "score": 7, "p": 68 },
       { "score": 10, "p": 98 }
     ]
   }
 }
 ```
 
-`sample_confidence` is a coarse banding computed from the Wilson score interval width (tight = high, wide = low). Clients may choose to hide the pill when confidence is `low`.
+All counts are **`COUNT(DISTINCT anon_guest_id)`** in the BigQuery rollup, not raw event counts. One user firing many events counts as one.
 
-### Statistical rigour baked into the builder
+### Statistical rigour in the builder
 
-- **Minimum-sample threshold.** Per-question pills require `attempts >= 50` before they're exposed; below that, the per-question entry marks `sample_confidence: "low"` and clients may hide.
-- **Wilson score smoothing.** Correct-rate is reported as a point estimate plus a coarse confidence band rather than raw `correct/attempts`. This prevents "11 of 12 = 92%" from reading as a strong signal.
-- **Outlier user filtering.** Any `(user_id | anon_guest_id)` contributing more than a configurable threshold of interactions per question per day is excluded from the stats rollup. Raw rows stay in `interactions` for audit; they just don't distort aggregates.
-- **Self-selection bias disclosure.** Reported `correct_rate` is *among attempters* (skippers don't answer). The stats pack also carries `attempt_rate = attempts / (attempts + skips)` so both numbers are available and the framing is honest.
+- **Distinct-user counting everywhere.** Defeats the most obvious junk-event attack.
+- **Minimum-sample threshold.** Per-question pills require ≥ 50 distinct attempters before they're exposed. Below that, `sample_confidence: "low"` and the client hides the pill.
+- **Wilson score smoothing.** Coarse confidence bands (`low | medium | high`) computed from the Wilson-interval width prevent "11 of 12 got it right = 92%" from reading as a strong signal.
+- **Cold-start cap.** First 7 days after a pack goes live, `sample_confidence` is capped at `medium` regardless of N — no hard claims until real play accumulates.
+- **Outlier user filter.** Any single `anon_guest_id` contributing more than a configurable threshold per question per day is dropped from rollups. Raw rows stay in BQ for audit.
+- **Self-selection bias disclosure.** `correct_rate` is reported alongside `attempt_rate` so consumers can see that "% correct" is among attempters, not all viewers.
 
 ### Privacy
 
-All reported numbers are aggregate; no individual user is identifiable from any pill, card, or summary. Same category as "5.2M users played last month" analytics surfaces everyone publishes. Users retain the right to delete their account and have their attributed interactions de-attributed (or purged) per the privacy policy.
+All reported numbers are aggregate. No individual user is identifiable from any pill, card, or summary — same category as "5.2M users played last month" analytics most apps publish. A settings toggle lets a user opt out of contributing their events to aggregates (the rollup query filters them).
 
 ## Consequences
 
 **Positive**
 
-- Gives the product a real retention hook without demanding trustworthy client-graded scores.
-- Preserves the cost model: immutable content packs keep their infinite cache lifetime; only the small stats artefact refreshes.
-- Offline play continues to work — stats are decoration, not required for the core loop.
-- Stats schema evolves independently of content schema. Adding `p50_response_ms` or `streak_percentile` later doesn't require rebuilding content packs.
-- Opens a path to more sophisticated social-proof features later (pack rankings, subject-level rivals, "harder than X% of players" achievements) on the same foundation.
+- Real retention hook without trustworthy client-graded scores.
+- Cost model preserved: content packs stay immutable and infinitely cacheable; only the small stats artefact refreshes daily.
+- Offline play continues to work — stats are decoration, not required.
+- Stats schema evolves independently of content schema. Adding `p50_response_ms` or `streak_percentile` later doesn't churn content packs.
+- Foundation for richer social-proof later (subject-level rivals, "harder than X% of players" achievements).
 
 **Negative**
 
-- Introduces a new CDN artefact category (stats packs) and a new build step. More moving pieces than a pure-static content model.
-- Small-sample handling is a real concern during cold-start. The first day a new pack goes live, most questions will have low sample sizes and pills will be hidden or faint. Acceptable — as the pack matures, stats fill in.
-- The "social proof" motivational hit is weaker than ordinal rivalry for users who specifically crave competition. That audience is served later by a separate server-graded mode, not by this feature.
+- New CDN artefact category and a new build step. More moving pieces than pure-static content.
+- Cold-start: first day a pack is live, most questions are below sample threshold and pills hide. Acceptable; pack matures, stats fill in.
+- Weaker motivational hit than ordinal rivalry for users who specifically crave competition. That audience is served later by a server-graded mode, not by this feature.
 
 **Operational**
 
-- The stats builder is a nightly job (or on-demand). Idempotent: rebuilding on the same day produces the same stats pack (given same inputs). Runs on the same single-process host as the API for MVP; moves to a scheduled worker when volume warrants.
-- Abuse monitoring shifts slightly: we now watch for users trying to inflate a question's aggregate stats (via mass-submitted fake interactions). The outlier filter handles baseline cases; serious abuse campaigns would need targeted response if they ever appear.
+- Stats builder is a daily job. Idempotent — same inputs produce the same stats pack on a given day. Runs on the same scheduled host as the content pipeline.
+- Abuse monitoring shifts to "watch for users trying to inflate aggregate stats." Outlier filter handles the baseline; serious campaigns would need targeted response if they appear.
 
 ## Alternatives considered
 
-- **Bake stats into the content pack (user's Proposal B).** Rejected — stats change often, content doesn't. Mixing them wastes egress and breaks CDN cache reuse every time stats refresh. Offline play becomes harder too, because "play" now requires fresh stats.
-- **Trust-based ordinal leaderboards on client-graded play.** Rejected — inherently untrustworthy given answer keys ship to clients. Would either require removing answer keys from packs (killing the cost model of ADR 0002) or knowingly publishing fake rankings.
-- **Real ordinal leaderboards on a separate server-graded code path, instead of stats.** Deferred, not rejected. The stats-based social-proof is cheaper to build, serves more users (casual > competitive), and doesn't foreclose the server-graded mode later. We can have both.
-- **Skip leaderboard-equivalent entirely and lean on personal streaks.** Rejected — streaks alone flatten retention past the first week. Social proof is what keeps casual users coming back after novelty wears off.
+- **Bake stats into the content pack.** Rejected — content packs and stats packs have opposing cache strategies (immutable forever vs. refresh daily). Mixing them defeats CDN reuse and breaks offline play.
+- **Trust-based ordinal leaderboards on client-graded play.** Inherently untrustworthy. Would publish numbers that don't mean anything.
+- **Real ordinal leaderboards on a separate server-graded path now.** Deferred, not rejected — see Phase 5+ in the roadmap. Stats-based social proof ships first because it's cheaper and serves the larger casual audience.
+- **Skip leaderboard-equivalent entirely; lean on personal streaks.** Streaks alone flatten retention past the first week. Need the comparison axis.
 
 ## Cross-references
 
-- [ADR 0001](0001-reels-feed-not-session-rounds.md) — casual feed model that this serves
-- [ADR 0002](0002-client-heavy-cost-optimized.md) — cost constraints this must respect
-- [Architecture](../architecture.md) — system design that now includes stats packs as a first-class artefact (§5, §9)
-- [`active/stats-and-social-proof-plan/`](../../active/stats-and-social-proof-plan/) — the plan that implements this decision
-
-## Amendments
-
-### 2026-04-19 — Coordinated bot mitigation
-
-The single-user outlier filter under **Statistical rigour** above handles one attacker; coordinated low-volume bots minting fresh anonymous JWTs are a separate threat (anon JWT issuance is unauthenticated and per-IP rate-limited only). Two additional defences:
-
-- **Hardened minimum-attempts gate when pills are user-facing.** Per-question pills require `attempts ≥ 200` before exposure (raised from the `≥ 50` used internally for `sample_confidence` banding). Below the threshold pills are hidden client-side. The gate raises the cost of moving a single question's published rate.
-- **Authed-vs-anon weighting in the rollup.** Authed `user_id` interactions count for **3× the weight** of `anon_guest_id` interactions when computing aggregate rates. Anon contributions still count — they just need 3× the volume to move the distribution. Cheap-JWT attacks pay the cost.
-
-Both thresholds (`200`, `3×`) are config in the stats builder, not hard-coded — tunable without an ADR change. We watch real abuse signals before tightening further; over-tightening starves cold-start packs of stats.
+- [ADR 0001](0001-reels-feed-not-session-rounds.md) — feed model that this serves
+- [ADR 0002](0002-client-heavy-cost-optimized.md) — why aggregate stats are honest while ordinal isn't
+- [Architecture](../architecture.md) — data flow + stats pipeline
+- [Stats & Social-Proof Plan](../../active/stats-and-social-proof-plan/) — implementation

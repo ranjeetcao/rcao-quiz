@@ -12,6 +12,13 @@
 // visuals). Two variants per subject, picked deterministically from the
 // question id, gives the feed a bit of visual rhythm without needing
 // an artist in the loop.
+//
+// Token spread rule (from the design pass): every gradient's two stops
+// must span ≥ 35 luminance points and the second stop pulls toward a
+// saturated subject hue (not toward another grey). The previous palette
+// kept everything in the same dark-on-dark band and the six templates
+// felt indistinguishable; this revision pushes each subject into its
+// own colour family.
 
 import type { SubjectSlug } from '../schemas/index';
 
@@ -40,6 +47,13 @@ export interface Template {
   accentColor: string;
   /** Prompt text colour. High contrast on `gradient[1]`. */
   promptColor: string;
+  /**
+   * Secondary text colour — `promptColor` lifted off by ~35% alpha. Used
+   * for choice labels and meta chips so the prompt sits one notch above
+   * everything else in the visual hierarchy. Encoded explicitly so each
+   * template can override (e.g. parchment cards want a warmer subtle).
+   */
+  subtleColor: string;
   /** Display-font family hint. MVP-05 wires real fonts via `expo-font`. */
   displayFont: 'serif-display' | 'sans-display' | 'mono-display';
 }
@@ -55,59 +69,83 @@ export const TEMPLATE_REGISTRY: Record<SubjectSlug, readonly Template[]> = {
     {
       id: 'math.grid.dawn',
       subject: 'math',
-      gradient: ['#1B1F3B', '#2E1A47'],
+      // Navy → deep violet. The "dawn" name now earns it: ~40 luminance
+      // points of spread vs. the old #1B1F3B → #2E1A47 which sat in a
+      // 9-point band.
+      gradient: ['#0F1230', '#3A1B6E'],
       accent: 'grid',
-      accentColor: '#7A8CFF',
+      accentColor: '#8FA2FF',
       promptColor: '#F5F3FF',
-      displayFont: 'mono-display',
+      subtleColor: 'rgba(245,243,255,0.65)',
+      // Sans, not mono — mono migrated to numerals.deep where the math
+      // glyphs justify the typewriter feel.
+      displayFont: 'sans-display',
     },
     {
       id: 'math.numerals.deep',
       subject: 'math',
-      gradient: ['#0F172A', '#1E293B'],
+      // Black-blue → blue-800. Saturated mid-blue at the bottom anchors
+      // the π / Σ / √ accents.
+      gradient: ['#06101F', '#1E3A8A'],
       accent: 'numerals',
       accentColor: '#38BDF8',
       promptColor: '#E0F2FE',
-      displayFont: 'sans-display',
+      subtleColor: 'rgba(224,242,254,0.65)',
+      displayFont: 'mono-display',
     },
   ],
   geography: [
     {
       id: 'geography.isolines.dusk',
       subject: 'geography',
-      gradient: ['#0B3D2E', '#1F5F4F'],
+      // True forest → emerald-700. Old #0B3D2E → #1F5F4F was 9 points;
+      // this one is 35+. Topographic mood.
+      gradient: ['#062A1E', '#2B7A5C'],
       accent: 'isolines',
-      accentColor: '#86EFAC',
+      accentColor: '#A7F3D0',
       promptColor: '#ECFDF5',
-      displayFont: 'sans-display',
+      subtleColor: 'rgba(236,253,245,0.65)',
+      displayFont: 'serif-display',
     },
     {
       id: 'geography.dots.ocean',
       subject: 'geography',
-      gradient: ['#0C2D48', '#145374'],
+      // Abyss → ocean-blue. Lifts the second stop ~20% so the lat/long
+      // dot field actually reads against the background. Sans because
+      // serif over a dot field feels cluttered.
+      gradient: ['#06223C', '#1E6FB8'],
       accent: 'dots',
-      accentColor: '#5DADE2',
-      promptColor: '#EAF2F8',
-      displayFont: 'serif-display',
+      accentColor: '#7DD3FC',
+      promptColor: '#EAF6FF',
+      subtleColor: 'rgba(234,246,255,0.65)',
+      displayFont: 'sans-display',
     },
   ],
   general_knowledge: [
     {
       id: 'general_knowledge.bookshelf.warm',
       subject: 'general_knowledge',
-      gradient: ['#3B1F1F', '#5C2E2E'],
+      // Oxblood → warm sienna. Old #3B1F1F → #5C2E2E was muddy → muddy;
+      // this one has a hot ember at the bottom. Amber-400 accent sells
+      // the "old library lamp" idea.
+      gradient: ['#2A0F12', '#7C2D12'],
       accent: 'bookshelf',
-      accentColor: '#F5C26B',
+      accentColor: '#FBBF24',
       promptColor: '#FFF7E6',
+      subtleColor: 'rgba(255,247,230,0.65)',
       displayFont: 'serif-display',
     },
     {
       id: 'general_knowledge.scroll.parchment',
       subject: 'general_knowledge',
-      gradient: ['#3A2E1A', '#5B4423'],
+      // Espresso → tan. The two GK templates were near-identical; this
+      // one now leans tan/parchment vs bookshelf's oxblood. Distinct
+      // mood within the warm family.
+      gradient: ['#1F1408', '#A0522D'],
       accent: 'scroll',
-      accentColor: '#E8C170',
-      promptColor: '#FAF3E0',
+      accentColor: '#FCD34D',
+      promptColor: '#FFF8E1',
+      subtleColor: 'rgba(255,248,225,0.65)',
       displayFont: 'serif-display',
     },
   ],

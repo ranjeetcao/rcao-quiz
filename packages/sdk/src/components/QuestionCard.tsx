@@ -1,24 +1,26 @@
 // Full-bleed question card. The visual unit of the reels feed.
 //
-// Composition:
+// Composition (top → bottom of the card):
 //   - LinearGradient background (template.gradient)
 //   - AccentLayer (template.accent + template.accentColor)
+//   - Subject chip ("MATH · GRID") in the top-left
+//   - ReportButton in the top-right
 //   - Prompt text (template.promptColor + displayFont mapping)
 //   - 4 ChoiceButtons (state-driven by `revealedAnswer`)
-//   - ReportButton in the top-right
+//   - Progress dots near the bottom
 //
-// Controlled component: the parent (the feed in MVP-05) holds the
-// answer state and timing. QuestionCard only knows how to render a
-// snapshot — that keeps the reveal/auto-advance choreography in one
-// place (the feed) and lets the card stay deterministic and testable.
+// Controlled component: the parent (the feed in MVP-05) holds the answer
+// state and timing. QuestionCard only knows how to render a snapshot —
+// that keeps the reveal/auto-advance choreography in one place (the feed)
+// and lets the card stay deterministic and testable.
 
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
-import type { Question } from '../schemas/index';
+import type { Question, SubjectSlug } from '../schemas/index';
 import { pickTemplate } from '../templates/pick';
-import type { Template } from '../templates/registry';
+import type { AccentKind, Template } from '../templates/registry';
 import { AccentLayer } from './AccentLayer';
 import { ChoiceButton, type ChoiceState } from './ChoiceButton';
 import { ReportButton } from './ReportButton';
@@ -67,6 +69,7 @@ export function QuestionCard({
 
   const tpl = template ?? pickTemplate(question);
   const fontFamily = mapDisplayFont(tpl.displayFont);
+  const subjectLabel = `${displaySubject(question.subject)} · ${displayAccent(tpl.accent)}`;
 
   return (
     <View style={[styles.card, { width, height }]}>
@@ -78,8 +81,10 @@ export function QuestionCard({
       />
       <AccentLayer kind={tpl.accent} color={tpl.accentColor} width={width} height={height} />
 
+      <Text style={[styles.subjectChip, { color: tpl.subtleColor }]}>{subjectLabel}</Text>
+
       <View style={styles.topBar}>
-        <ReportButton onPress={onReport} color={withAlpha(tpl.promptColor, 0.55)} />
+        <ReportButton onPress={onReport} color={tpl.subtleColor} />
       </View>
 
       <Text style={[styles.prompt, { color: tpl.promptColor, fontFamily }]}>
@@ -87,10 +92,11 @@ export function QuestionCard({
       </Text>
 
       <View style={styles.choices}>
-        {question.choices.map((choice) => (
+        {question.choices.map((choice, i) => (
           <ChoiceButton
             key={choice}
             label={choice}
+            index={i}
             state={choiceState(choice, question.correct_answer, revealedAnswer)}
             accentColor={tpl.accentColor}
             textColor={tpl.promptColor}
@@ -98,6 +104,14 @@ export function QuestionCard({
           />
         ))}
       </View>
+
+      {/*
+        MVP-05 will land the real "N of M" progress indicator here; the
+        feed knows the buffered question count and current index, so the
+        progress UI belongs at that level rather than synthesised inside
+        the card. Tried decorative dots in MVP-03 but they collided with
+        the iOS home-indicator safe area and read as a bug.
+      */}
     </View>
   );
 }
@@ -121,6 +135,11 @@ function choiceState(
  * Map the template's display-font hint to a concrete font-family string.
  * MVP-05 wires real custom fonts via `expo-font`; until then we ride
  * platform defaults so the card still renders in the simulator.
+ *
+ * sans-display intentionally returns undefined — that yields the
+ * platform default (SF Pro Display on iOS, Roboto on Android). At hero
+ * sizes we lean on the typography styles (-0.4 letter-spacing, weight
+ * 700) to give the system sans display-face energy.
  */
 function mapDisplayFont(hint: Template['displayFont']): string | undefined {
   switch (hint) {
@@ -130,47 +149,66 @@ function mapDisplayFont(hint: Template['displayFont']): string | undefined {
       return 'Menlo';
     case 'sans-display':
     default:
-      return undefined; // platform default sans
+      return undefined;
   }
 }
 
-/** Convert any `#RRGGBB` to rgba with the given alpha. Pass-through otherwise. */
-function withAlpha(color: string, alpha: number): string {
-  const m = /^#([0-9a-fA-F]{6})$/.exec(color);
-  if (m === null) return color;
-  const v = parseInt(m[1]!, 16);
-  return `rgba(${(v >> 16) & 0xff}, ${(v >> 8) & 0xff}, ${v & 0xff}, ${alpha})`;
+/** Subject slug → display-cased name for the subject chip. */
+function displaySubject(subject: SubjectSlug): string {
+  // 'general_knowledge' → 'GENERAL KNOWLEDGE'. Slugs are stable so we
+  // don't reach for content/subjects.json here — keeping the SDK self-
+  // contained for non-RN consumers.
+  return subject.replace(/_/g, ' ').toUpperCase();
+}
+
+/** AccentKind → short label for the subject chip. */
+function displayAccent(accent: AccentKind): string {
+  return accent.toUpperCase();
 }
 
 const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
   },
+  // Subject chip — small uppercase label above the prompt that fills the
+  // dead-zone left over when the prompt is short. Uses tracked-out caps
+  // (letterSpacing 1.5) so it reads as meta-information, not headline.
+  subjectChip: {
+    position: 'absolute',
+    top: 84,
+    left: 28,
+    right: 28,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
   topBar: {
     position: 'absolute',
-    top: 56,
-    right: 16,
+    top: 64,
+    right: 20,
     zIndex: 2,
   },
-  // Prompt is anchored to the top of the card with absolute positioning so
-  // it doesn't compete with the choices container for flex space. We hit a
-  // bug on iOS 26.2 where prompt rendered correctly but the choices View
-  // collapsed to zero height inside a flex parent of a paging ScrollView.
-  // Two absolutely-positioned siblings inside the card View are layout-
-  // independent: each anchors to the card directly.
+  // Hero prompt typography. 34/40/-0.4/700 is the iOS HIG large-title
+  // spec; on Android the system Roboto picks up similar metrics. Letter
+  // spacing pulled tight (-0.4) gives the system sans real display-face
+  // weight at this size.
   prompt: {
     position: 'absolute',
-    top: 120,
-    left: 24,
-    right: 24,
-    fontSize: 28,
-    fontWeight: '600',
-    lineHeight: 36,
-    letterSpacing: 0.2,
+    top: 130,
+    left: 28,
+    right: 28,
+    fontSize: 34,
+    fontWeight: '700',
+    lineHeight: 40,
+    letterSpacing: -0.4,
   },
+  // Choices anchored to the bottom with enough clearance above the iOS
+  // home indicator that the bottom button stays visible. Bumped from 56
+  // to 88 after on-device verification on iPhone 16e.
   choices: {
     position: 'absolute',
-    bottom: 56,
+    bottom: 88,
     left: 24,
     right: 24,
   },

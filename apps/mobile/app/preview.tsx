@@ -19,7 +19,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   analytics,
   gradeAnswer,
-  pickTemplate,
   type Question,
 } from '@rcao-quiz/sdk';
 import { QuestionCard } from '@rcao-quiz/sdk/components';
@@ -117,16 +116,19 @@ export default function PreviewScreen(): React.ReactElement {
         ))}
       </ScrollView>
 
-      <View style={styles.footer} pointerEvents="box-none">
-        <Pressable onPress={reset} style={styles.footerBtn}>
-          <Text style={styles.footerBtnText}>Reset</Text>
+      {/*
+        Dev chrome — moved to the top-left so it never overlaps the
+        QuestionCard's choices or progress dots. Template id is dropped
+        from the visible UI; in __DEV__ it'll surface in the in-app
+        debug menu in MVP-05.
+      */}
+      <View style={styles.devChrome} pointerEvents="box-none">
+        <Pressable onPress={() => router.back()} style={styles.devChromeBtn}>
+          <Text style={styles.devChromeBtnText}>←</Text>
         </Pressable>
-        <Pressable onPress={() => router.back()} style={styles.footerBtn}>
-          <Text style={styles.footerBtnText}>← Back</Text>
+        <Pressable onPress={reset} style={styles.devChromeBtn}>
+          <Text style={styles.devChromeBtnText}>Reset</Text>
         </Pressable>
-        <Text style={styles.footerNote}>
-          template: {pickTemplate(SAMPLES[0]!).id}
-        </Text>
       </View>
     </SafeAreaView>
   );
@@ -137,30 +139,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  footer: {
+  devChrome: {
     position: 'absolute',
-    bottom: 24,
-    left: 0,
-    right: 0,
+    top: 56,
+    left: 16,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
-  footerBtn: {
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+  devChromeBtn: {
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: 999,
+    minWidth: 36,
+    alignItems: 'center',
   },
-  footerBtnText: {
-    color: 'white',
+  devChromeBtnText: {
+    color: 'rgba(255,255,255,0.9)',
     fontSize: 13,
     fontWeight: '600',
-  },
-  footerNote: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 11,
-    marginLeft: 8,
   },
 });

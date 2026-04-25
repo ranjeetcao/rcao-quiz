@@ -29,9 +29,17 @@ export type ChoiceState =
   | 'revealed-wrong'
   | 'revealed-other';
 
+const INDEX_LETTERS = ['A', 'B', 'C', 'D'] as const;
+
 export interface ChoiceButtonProps {
   label: string;
   state: ChoiceState;
+  /**
+   * Position in the choice list (0..3). Renders as a leading A/B/C/D
+   * marker. Gives the eye an anchor and makes verbal answers possible
+   * ("the answer is C") — same trick Kahoot/Quizlet/Duolingo use.
+   */
+  index: number;
   /** Tint colour for highlights (correct reveal). Comes from the template. */
   accentColor: string;
   /** Text colour for the label. Comes from the template. */
@@ -42,6 +50,7 @@ export interface ChoiceButtonProps {
 export function ChoiceButton({
   label,
   state,
+  index,
   accentColor,
   textColor,
   onPress,
@@ -63,13 +72,26 @@ export function ChoiceButton({
     },
   ];
 
+  // The index marker borrows the accent colour on reveal so the correct
+  // answer's `A`/`B`/`C`/`D` chip highlights along with the rest of the
+  // button. Idle is a soft white fill on a soft white outline — same
+  // material as the button border, just smaller.
+  const markerBorder = visual.markerBorder ?? 'rgba(255,255,255,0.22)';
+  const markerColor = visual.markerColor ?? textColor;
+
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={`${INDEX_LETTERS[index] ?? ''}. ${label}`}
       accessibilityState={{ disabled: !isInteractive, selected: state !== 'idle' }}
       onPress={isInteractive ? onPress : undefined}
       style={buttonStyle}
     >
+      <View style={[styles.marker, { borderColor: markerBorder }]}>
+        <Text style={[styles.markerText, { color: markerColor }]}>
+          {INDEX_LETTERS[index] ?? ''}
+        </Text>
+      </View>
       <Text
         numberOfLines={2}
         style={[styles.label, { color: visual.textOverride ?? textColor }]}
@@ -91,14 +113,22 @@ interface ChoiceVisual {
   opacity: number;
   textOverride: string | null;
   glyph: { char: string; color: string } | null;
+  /** Override for the index-marker ring colour. Defaults to a soft white. */
+  markerBorder?: string;
+  /** Override for the index-letter colour. Defaults to the template textColor. */
+  markerColor?: string;
 }
 
 function visualForState(state: ChoiceState, accentColor: string): ChoiceVisual {
   switch (state) {
     case 'idle':
       return {
-        bg: 'rgba(255,255,255,0.08)',
-        border: 'rgba(255,255,255,0.18)',
+        // Slightly lower fill (0.06) and softer border (0.14) than the
+        // first pass — at 0.08/0.18 the buttons read as outlined boxes
+        // floating in space. The new values let the gradient breathe
+        // through while still claiming the tap area.
+        bg: 'rgba(255,255,255,0.06)',
+        border: 'rgba(255,255,255,0.14)',
         opacity: 1,
         textOverride: null,
         glyph: null,
@@ -118,6 +148,8 @@ function visualForState(state: ChoiceState, accentColor: string): ChoiceVisual {
         opacity: 1,
         textOverride: null,
         glyph: { char: '✓', color: accentColor },
+        markerBorder: accentColor,
+        markerColor: accentColor,
       };
     case 'revealed-wrong':
       return {
@@ -126,6 +158,8 @@ function visualForState(state: ChoiceState, accentColor: string): ChoiceVisual {
         opacity: 1,
         textOverride: null,
         glyph: { char: '✕', color: '#DC5050' },
+        markerBorder: '#DC5050',
+        markerColor: '#DC5050',
       };
     case 'revealed-other':
       return {
@@ -151,20 +185,37 @@ function hexToRgba(hex: string, alpha: number): string {
 
 const styles = StyleSheet.create({
   button: {
-    borderWidth: 1.5,
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    marginVertical: 6,
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginVertical: 7,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 60,
+    // Left-anchored content so the index marker pins to the left edge
+    // and the label flows naturally beside it.
+    justifyContent: 'flex-start',
+    minHeight: 64,
+  },
+  marker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1.25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  markerText: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   label: {
     flex: 1,
-    fontSize: 18,
-    fontWeight: '500',
+    fontSize: 19,
+    fontWeight: '600',
+    letterSpacing: -0.1,
   },
   glyphSlot: {
     width: 28,

@@ -14,7 +14,7 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 
 import type { Question } from '../schemas/index';
 import { pickTemplate } from '../templates/pick';
@@ -22,8 +22,6 @@ import type { Template } from '../templates/registry';
 import { AccentLayer } from './AccentLayer';
 import { ChoiceButton, type ChoiceState } from './ChoiceButton';
 import { ReportButton } from './ReportButton';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export interface QuestionCardProps {
   question: Question;
@@ -35,7 +33,7 @@ export interface QuestionCardProps {
   revealedAnswer: string | null;
   onAnswer: (chosen: string) => void;
   onReport: () => void;
-  /** Override the card dimensions (default: full screen). */
+  /** Override the card dimensions (default: live window size). */
   width?: number;
   height?: number;
   /** Override the picked template (useful for previews / Storybook). */
@@ -47,10 +45,16 @@ export function QuestionCard({
   revealedAnswer,
   onAnswer,
   onReport,
-  width = SCREEN_WIDTH,
-  height = SCREEN_HEIGHT,
+  width: widthProp,
+  height: heightProp,
   template,
 }: QuestionCardProps): React.ReactElement {
+  // useWindowDimensions tracks orientation + safe-area changes; reading
+  // Dimensions.get('window') at module-load time goes stale and bites us
+  // on iOS in particular. The width/height props still win when supplied.
+  const win = useWindowDimensions();
+  const width = widthProp ?? win.width;
+  const height = heightProp ?? win.height;
   if (question.mode !== 'text') {
     // Image / video render paths are deliberately out of scope for
     // Phase 0 (ADR 0003). Failing loudly here means a content batch
@@ -78,23 +82,21 @@ export function QuestionCard({
         <ReportButton onPress={onReport} color={withAlpha(tpl.promptColor, 0.55)} />
       </View>
 
-      <View style={styles.body}>
-        <Text style={[styles.prompt, { color: tpl.promptColor, fontFamily }]}>
-          {question.prompt_text}
-        </Text>
+      <Text style={[styles.prompt, { color: tpl.promptColor, fontFamily }]}>
+        {question.prompt_text}
+      </Text>
 
-        <View style={styles.choices}>
-          {question.choices.map((choice) => (
-            <ChoiceButton
-              key={choice}
-              label={choice}
-              state={choiceState(choice, question.correct_answer, revealedAnswer)}
-              accentColor={tpl.accentColor}
-              textColor={tpl.promptColor}
-              onPress={() => onAnswer(choice)}
-            />
-          ))}
-        </View>
+      <View style={styles.choices}>
+        {question.choices.map((choice) => (
+          <ChoiceButton
+            key={choice}
+            label={choice}
+            state={choiceState(choice, question.correct_answer, revealedAnswer)}
+            accentColor={tpl.accentColor}
+            textColor={tpl.promptColor}
+            onPress={() => onAnswer(choice)}
+          />
+        ))}
       </View>
     </View>
   );
@@ -150,20 +152,26 @@ const styles = StyleSheet.create({
     right: 16,
     zIndex: 2,
   },
-  body: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 120,
-    paddingBottom: 56,
-    justifyContent: 'space-between',
-  },
+  // Prompt is anchored to the top of the card with absolute positioning so
+  // it doesn't compete with the choices container for flex space. We hit a
+  // bug on iOS 26.2 where prompt rendered correctly but the choices View
+  // collapsed to zero height inside a flex parent of a paging ScrollView.
+  // Two absolutely-positioned siblings inside the card View are layout-
+  // independent: each anchors to the card directly.
   prompt: {
+    position: 'absolute',
+    top: 120,
+    left: 24,
+    right: 24,
     fontSize: 28,
     fontWeight: '600',
     lineHeight: 36,
     letterSpacing: 0.2,
   },
   choices: {
-    width: '100%',
+    position: 'absolute',
+    bottom: 56,
+    left: 24,
+    right: 24,
   },
 });

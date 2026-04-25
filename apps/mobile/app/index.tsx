@@ -1,5 +1,6 @@
 import { Link } from 'expo-router';
-import { SafeAreaView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { SDK_VERSION } from '@rcao-quiz/sdk';
 
 /**
@@ -13,7 +14,7 @@ import { SDK_VERSION } from '@rcao-quiz/sdk';
  */
 export default function Home() {
   return (
-    <SafeAreaView className="flex-1 bg-ink-900">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0b1220' }} edges={['top', 'bottom']}>
       <View className="flex-1 items-center justify-center px-8">
         <Text className="text-3xl font-bold text-white">rcao-quiz</Text>
         <Text className="mt-2 text-base text-ink-300">scaffold OK</Text>

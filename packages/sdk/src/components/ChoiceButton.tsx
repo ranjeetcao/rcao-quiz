@@ -49,19 +49,26 @@ export function ChoiceButton({
   const isInteractive = state === 'idle';
   const visual = visualForState(state, accentColor);
 
+  // Pre-compute the style array so we don't pass a function-as-style to
+  // Pressable. RN's docs say function-as-style is supported but on some
+  // Expo+iOS combos it silently drops the inline overrides — we hit that
+  // on iOS 26.2 (text rendered, all backgrounds/borders gone). A plain
+  // array is universally supported.
+  const buttonStyle = [
+    styles.button,
+    {
+      backgroundColor: visual.bg,
+      borderColor: visual.border,
+      opacity: visual.opacity,
+    },
+  ];
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled: !isInteractive, selected: state !== 'idle' }}
       onPress={isInteractive ? onPress : undefined}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor: visual.bg,
-          borderColor: visual.border,
-          opacity: pressed && isInteractive ? 0.85 : visual.opacity,
-        },
-      ]}
+      style={buttonStyle}
     >
       <Text
         numberOfLines={2}

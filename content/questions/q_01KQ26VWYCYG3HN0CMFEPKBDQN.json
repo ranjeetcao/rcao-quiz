@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWYCYG3HN0CMFEPKBDQN",
+  "mode": "text",
+  "subject": "general_knowledge",
+  "prompt_text": "Which post-impressionist painter cut off part of his own ear?",
+  "choices": [
+    "Claude Monet",
+    "Pablo Picasso",
+    "Salvador Dalí",
+    "Vincent van Gogh"
+  ],
+  "correct_answer": "Vincent van Gogh",
+  "difficulty": 2,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

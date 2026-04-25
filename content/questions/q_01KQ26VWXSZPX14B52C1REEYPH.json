@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWXSZPX14B52C1REEYPH",
+  "mode": "text",
+  "subject": "geography",
+  "prompt_text": "The Sahara Desert is mainly located on which continent?",
+  "choices": [
+    "Africa",
+    "Asia",
+    "Australia",
+    "South America"
+  ],
+  "correct_answer": "Africa",
+  "difficulty": 2,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

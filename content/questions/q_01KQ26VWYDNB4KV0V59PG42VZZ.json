@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWYDNB4KV0V59PG42VZZ",
+  "mode": "text",
+  "subject": "general_knowledge",
+  "prompt_text": "How many bones are in the adult human body?",
+  "choices": [
+    "186",
+    "206",
+    "226",
+    "256"
+  ],
+  "correct_answer": "206",
+  "difficulty": 2,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

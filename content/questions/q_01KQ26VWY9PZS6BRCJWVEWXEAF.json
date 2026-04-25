@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWY9PZS6BRCJWVEWXEAF",
+  "mode": "text",
+  "subject": "general_knowledge",
+  "prompt_text": "What is the chemical symbol for gold?",
+  "choices": [
+    "Ag",
+    "Au",
+    "Gd",
+    "Go"
+  ],
+  "correct_answer": "Au",
+  "difficulty": 2,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

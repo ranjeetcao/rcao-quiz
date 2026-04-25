@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWYANWDDARKQ6QYXB9YZ",
+  "mode": "text",
+  "subject": "general_knowledge",
+  "prompt_text": "In which country is the Great Wall located?",
+  "choices": [
+    "China",
+    "India",
+    "Japan",
+    "Mongolia"
+  ],
+  "correct_answer": "China",
+  "difficulty": 2,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

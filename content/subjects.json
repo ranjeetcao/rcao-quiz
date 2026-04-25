@@ -1,0 +1,5 @@
+[
+  { "slug": "math", "display_name": "Math" },
+  { "slug": "geography", "display_name": "Geography" },
+  { "slug": "general_knowledge", "display_name": "General Knowledge" }
+]

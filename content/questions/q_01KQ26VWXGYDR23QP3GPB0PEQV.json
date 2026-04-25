@@ -1,0 +1,21 @@
+{
+  "id": "q_01KQ26VWXGYDR23QP3GPB0PEQV",
+  "mode": "text",
+  "subject": "math",
+  "prompt_text": "What is 7! (seven factorial)?",
+  "choices": [
+    "720",
+    "2520",
+    "5040",
+    "7200"
+  ],
+  "correct_answer": "5040",
+  "difficulty": 3,
+  "status": "approved",
+  "generator_meta": {
+    "source": "hand-written-mvp",
+    "approved_at": "2026-04-25T00:00:00Z"
+  },
+  "retired_at": null,
+  "retired_reason": null
+}

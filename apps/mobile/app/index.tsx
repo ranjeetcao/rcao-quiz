@@ -3,12 +3,13 @@ import { SafeAreaView, Text, View } from 'react-native';
 import { SDK_VERSION } from '@rcao-quiz/sdk';
 
 /**
- * MVP-01 placeholder home screen.
+ * Placeholder home screen.
  *
- * The real reels-style feed lands in MVP-05 (FlatList scroll-snap, QuestionCard,
- * subject templates). For now this just confirms the workspace boots end-to-end:
- * the Expo app, Expo Router, NativeWind classes, and the @rcao-quiz/sdk import
- * all working together.
+ * The real reels-style feed lands in MVP-05 (FlatList scroll-snap, picker
+ * with two-tier dedupe). MVP-03 added the SDK primitives — schemas, grading,
+ * pickTemplate, QuestionCard — and the `/preview` route below renders one
+ * sample card per subject so we can eyeball the visual on-device without
+ * waiting for the feed.
  */
 export default function Home() {
   return (
@@ -17,7 +18,10 @@ export default function Home() {
         <Text className="text-3xl font-bold text-white">rcao-quiz</Text>
         <Text className="mt-2 text-base text-ink-300">scaffold OK</Text>
         <Text className="mt-6 text-xs text-ink-400">@rcao-quiz/sdk @ {SDK_VERSION}</Text>
-        <View className="mt-12">
+        <View className="mt-12 gap-3">
+          <Link href="/preview" className="rounded-full bg-blue-600 px-5 py-2 text-white">
+            Preview QuestionCard (MVP-03)
+          </Link>
           <Link href="/stats" className="rounded-full bg-ink-700 px-5 py-2 text-white">
             Open stats placeholder
           </Link>

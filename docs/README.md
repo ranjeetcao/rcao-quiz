@@ -18,6 +18,7 @@ Plans progress through directories: `active/` → `completed/`.
 |------|--------|----------|----------|-------------|
 | [MVP Skeleton](active/mvp-skeleton-plan/) | PLANNING | 0/10 | Must | MVP-01 (monorepo scaffold + Expo app) |
 | [Stats & Social-Proof](active/stats-and-social-proof-plan/) | PLANNING | 0/10 | Should | Queued behind MVP Skeleton + Phase 1 |
+| [Agentic Tooling](active/agentic-tooling-plan/) | PLANNING | 0/9 | Should | AGT-01 (`CLAUDE.md` baseline). Independent of MVP Skeleton — can land in parallel. |
 
 ## Completed Plans
 

@@ -57,13 +57,16 @@ From the repo root, via pnpm 9 (declared in `package.json`,
 | `pnpm test` | Vitest across every workspace, in parallel. |
 | `pnpm lint` | Flat-config ESLint over the whole tree. |
 | `pnpm format` / `pnpm format:check` | Prettier write / check. |
-| `pnpm packs:build` | `tsx scripts/packs-build.ts` — reads `content/`, writes `./packs/`. (MVP-04 — script not present yet, command stub-listed.) |
-| `pnpm packs:serve` | Local static server for built packs (MVP-04). |
+| `pnpm packs:build` | `tsx scripts/packs-build.ts` — reads `content/`, writes `./packs/`. |
+| `pnpm packs:serve` | Local static server for built packs. |
 | `pnpm mobile <args>` | Forward args to the mobile workspace. |
 | `pnpm sdk <args>` | Forward args to the SDK workspace. |
 
 Single source of truth for the above is the `scripts` block in
-[`package.json`](package.json).
+[`package.json`](package.json). `packs:build` and `packs:serve` are
+stub-listed — both `scripts/packs-build.ts` and `scripts/packs-serve.ts`
+land in MVP-04; `scripts/` today contains only `generate-icons.py` and
+a `README.md`.
 
 ---
 
@@ -203,10 +206,10 @@ Honest list. These are not bugs to ambush; they are scoped-out items.
 - **No app store presence.** No bundle ID reservations, no listings.
 - **No CI** running lint / typecheck / tests on PRs yet. Pre-commit hooks
   arrive in AGT-04; CI is a later concern.
-- **`.claude/`** is currently a thin permissions-only setup
-  (`settings.json`, `settings.local.json`, `launch.json`). The agents,
-  hooks, slash commands, rules, and skills directories are being added
-  task-by-task across AGT-03 through AGT-10.
+- **`.claude/`** currently contains only `settings.local.json` (a
+  permissions allowlist). No `settings.json`, no `launch.json`, no
+  `agents/`, `hooks/`, `commands/`, `rules/`, or `skills/` directories
+  yet. Those land task-by-task across AGT-03 through AGT-10.
 
 ---
 

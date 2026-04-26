@@ -12,10 +12,11 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
-# Files we deliberately skip: this hook's own scripts (the regex strings live
-# inside them, so a naive scan would self-block) and the README that
-# documents the hook.
-SKIP_RE='^\.claude/hooks/(pre-commit-secrets\.sh|pre-commit-typecheck\.sh|README\.md)$'
+# Files we deliberately skip: the entire .claude/hooks/ subtree. The regex
+# literals live in this script (a naive scan would self-block), the README
+# documents the patterns, and any future fixtures or test files in this
+# directory should also be exempt by design.
+SKIP_RE='^\.claude/hooks/'
 
 # Build the diff body restricted to non-skip files. -U0 emits no context
 # lines; --diff-filter=ACM drops deletions/renames-without-content.
@@ -36,8 +37,9 @@ if [ -z "$ADDED" ]; then
   exit 0
 fi
 
-# Pattern table — name + extended-regex. Order matters only for which
-# message fires first; we exit on the first hit.
+# Pattern table — name + extended-regex. We report all matches in one
+# pass so a single commit doesn't need six round-trips to clean, then
+# exit non-zero if any pattern hit.
 PATTERNS=(
   "anthropic_api_key|sk-ant-api03-[A-Za-z0-9_-]{20,}"
   "openai_style_key|sk-[A-Za-z0-9]{32,}"

@@ -91,6 +91,16 @@ export interface AnalyticsAdapter {
 export class ConsoleAnalyticsAdapter implements AnalyticsAdapter {
   emit<N extends AnalyticsEventName>(name: N, params: AnalyticsParams<N>): void {
     const schema = ANALYTICS_PARAM_SCHEMAS[name];
+    // The mapped-type signature on ANALYTICS_PARAM_SCHEMAS guarantees a
+    // schema for every name in the discriminated union at compile time,
+    // but a JS caller (or `as any` escape hatch) can still pass an
+    // unknown name at runtime. Without this guard the next line would
+    // throw TypeError on `undefined.safeParse(...)` — violating the
+    // fail-soft contract documented on AnalyticsAdapter.emit.
+    if (schema === undefined) {
+      console.warn(`[analytics] dropped ${String(name)}: unknown event name`);
+      return;
+    }
     const result = schema.safeParse(params);
     if (!result.success) {
       console.warn(

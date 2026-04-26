@@ -18,11 +18,12 @@ Plans progress through directories: `active/` → `completed/`.
 |------|--------|----------|----------|-------------|
 | [MVP Skeleton](active/mvp-skeleton-plan/) | IN-DEV | 3/10 | Must | MVP-04 (pack builder script) — [PR #5](https://github.com/ranjeetcao/rcao-quiz/pull/5) open |
 | [Stats & Social-Proof](active/stats-and-social-proof-plan/) | PLANNING | 0/10 | Should | Queued behind MVP Skeleton + Phase 1 |
-| [Agentic Tooling](active/agentic-tooling-plan/) | SUBSTANTIALLY-COMPLETE | 10/10 | Should | Approval to flip to COMPLETED + move to `docs/completed/`. |
 
 ## Completed Plans
 
-_None yet._
+| Plan | Tasks | Notes |
+|------|-------|-------|
+| [Agentic Tooling](completed/agentic-tooling-plan/) | 10/10 | Imported the agentic-architecture pattern from `ai-travel-agent` scaled down to a 2-package mobile-only repo. Retired in PR #15 (`78ce5c8`). |
 
 ## Reference
 

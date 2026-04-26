@@ -3,7 +3,7 @@
 Prove the entire rcao-quiz loop end-to-end on **iOS Simulator + Android Emulator**, with zero runtime services: an Expo app with a reels-style feed, content as JSON files in the git repo, a local pack builder, ~50 hand-written text questions across three subjects, client-side grading, two-tier dedupe, and event emission through an SDK abstraction (console logger in Phase 0; real Firebase Analytics lands in Phase 1).
 
 **Master Plan:** [plan.md](plan.md)
-**Status:** IN PROGRESS — 3 / 10 tasks done (MVP-01, MVP-02, MVP-03)
+**Status:** IN PROGRESS — 4 / 10 tasks done (MVP-01, MVP-02, MVP-03, MVP-04)
 **Target Phase:** Phase 0 (2–3 weeks)
 **Depends on:** [Architecture](../../reference/architecture.md), [ADRs 0001–0006](../../reference/adr/)
 
@@ -14,7 +14,7 @@ Prove the entire rcao-quiz loop end-to-end on **iOS Simulator + Android Emulator
 | MVP-01 | Monorepo scaffold (pnpm workspaces: `apps/mobile` Expo app, `packages/sdk`, `scripts/`) | M | Done (`611c680`) | -- |
 | MVP-02 | Content repo structure (`content/subjects.json`, `content/prompt_templates/`, `content/questions/`) + 50 hand-written text Qs across 3 subjects | S | Done (`a352ab5`) | -- |
 | MVP-03 | `@quiz/sdk` — Zod schemas (Question, Pack, Manifest, GA4 events), grading helper, `QuestionCard` template renderer for RN, analytics abstraction (console logger in Phase 0) | M | Done (`7fdc174`) | MVP-01 |
-| MVP-04 | Pack builder script (`scripts/packs-build.ts`) — reads `content/`, writes pack JSONs + manifest to local `./packs/`; Expo dev server serves them as static assets via `expo-asset` or a local HTTP server | S | Pending | MVP-02, MVP-03 |
+| MVP-04 | Pack builder script (`scripts/packs-build.ts`) — reads `content/`, writes pack JSONs + manifest to local `./packs/`; Expo dev server serves them as static assets via `expo-asset` or a local HTTP server | S | Done (this PR) | MVP-02, MVP-03 |
 | MVP-05 | Reels feed UI on `FlatList` with paging-snap — `QuestionCard`, subject templates (`expo-linear-gradient` + `react-native-svg`), report button, haptics on answer | L | Pending | MVP-03 |
 | MVP-06 | App storage — `expo-sqlite` for pack cache + dedupe (acted ring buffer, bloom filter blob, flag-dedupe table); `react-native-mmkv` for personal stats; `expo-secure-store` for `anon_guest_id` | M | Pending | MVP-03 |
 | MVP-07 | Wire app to packs — fetch manifest + packs from local pack server, feed picker with two-tier dedupe applied | M | Pending | MVP-04, MVP-05, MVP-06 |

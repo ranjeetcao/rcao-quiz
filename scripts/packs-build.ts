@@ -213,17 +213,25 @@ function sha256Hex(bytes: Uint8Array): string {
 }
 
 function maxIso(values: string[]): string {
-  // ISO 8601 timestamps with the same offset (or all `Z`) compare
-  // correctly with plain string compare. Question files are validated
-  // by the Zod regex that requires an offset, so this holds.
-  let best: string | undefined;
-  for (const v of values) {
-    if (best === undefined || v > best) best = v;
-  }
-  if (best === undefined) {
+  // The Zod schema permits any offset on the input timestamps, so a
+  // lexicographic compare on the raw strings would silently pick a
+  // wrong "max" the day someone commits e.g.
+  // `2026-04-25T17:30:00+05:30` next to `2026-04-25T11:00:00Z` (same
+  // instant, different string ordering). Parse to milliseconds-since-
+  // epoch, take the max, then re-serialise to canonical UTC `…Z` form
+  // so the output is stable regardless of input style.
+  if (values.length === 0) {
     throw new Error('packs-build: maxIso called with no values');
   }
-  return best;
+  let bestMs = Number.NEGATIVE_INFINITY;
+  for (const v of values) {
+    const ms = Date.parse(v);
+    if (Number.isNaN(ms)) {
+      throw new Error(`packs-build: invalid ISO timestamp ${JSON.stringify(v)}`);
+    }
+    if (ms > bestMs) bestMs = ms;
+  }
+  return new Date(bestMs).toISOString();
 }
 
 function isoToYyyymmdd(iso: string): string {

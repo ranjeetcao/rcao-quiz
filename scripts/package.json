@@ -5,12 +5,10 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "packs:build": "tsx packs-build.ts"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@rcao-quiz/sdk": "workspace:*",
-    "zod": "^3.23.8"
+    "@rcao-quiz/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

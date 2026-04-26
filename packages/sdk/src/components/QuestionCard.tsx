@@ -25,6 +25,13 @@ import { AccentLayer } from './AccentLayer';
 import { ChoiceButton, type ChoiceState } from './ChoiceButton';
 import { ReportButton } from './ReportButton';
 
+// Hoist the LinearGradient endpoint objects out of the render path so a
+// FlatList of cards in MVP-05 doesn't allocate two fresh objects per
+// row per frame. Same gradient direction (top-left → bottom-right) for
+// every card, so this is safe to share.
+const GRADIENT_START = { x: 0, y: 0 } as const;
+const GRADIENT_END = { x: 1, y: 1 } as const;
+
 export interface QuestionCardProps {
   question: Question;
   /**
@@ -75,8 +82,8 @@ export function QuestionCard({
     <View style={[styles.card, { width, height }]}>
       <LinearGradient
         colors={[tpl.gradient[0], tpl.gradient[1]]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={GRADIENT_START}
+        end={GRADIENT_END}
         style={StyleSheet.absoluteFill}
       />
       <AccentLayer kind={tpl.accent} color={tpl.accentColor} width={width} height={height} />
@@ -93,14 +100,22 @@ export function QuestionCard({
 
       <View style={styles.choices}>
         {question.choices.map((choice, i) => (
+          // Composite key — index + choice — so the buttons don't remount
+          // mid-reveal if the picker ever shuffles choice order, while
+          // still being stable when the same content re-renders.
+          //
+          // `onAnswer` is forwarded as-is (one stable identity for all
+          // four buttons); ChoiceButton wires `label` into its own
+          // onPress closure so React.memo's shallow comparator can
+          // actually short-circuit re-renders during reveal.
           <ChoiceButton
-            key={choice}
+            key={`${i}-${choice}`}
             label={choice}
             index={i}
             state={choiceState(choice, question.correct_answer, revealedAnswer)}
             accentColor={tpl.accentColor}
             textColor={tpl.promptColor}
-            onPress={() => onAnswer(choice)}
+            onAnswer={onAnswer}
           />
         ))}
       </View>

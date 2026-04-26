@@ -6,6 +6,7 @@
 // so they read as texture, not as content.
 
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import Svg, {
   Circle,
   Defs,
@@ -33,11 +34,21 @@ export function AccentLayer({
   height,
 }: AccentLayerProps): React.ReactElement {
   return (
-    <Svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
+    <Svg width={width} height={height} style={accentStyles.layer}>
       {renderAccent(kind, color, width, height)}
     </Svg>
   );
 }
+
+const accentStyles = StyleSheet.create({
+  // Hoisted so the FlatList of cards in MVP-05 doesn't allocate a fresh
+  // style object per row. The same shape applies to every accent layer.
+  layer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+});
 
 function renderAccent(
   kind: AccentKind,
@@ -65,7 +76,7 @@ function renderAccent(
         <G opacity={0.10}>
           {NUMERAL_POSITIONS.map((p, i) => (
             <SvgText
-              key={i}
+              key={`${p.glyph}-${i}`}
               x={p.x * w}
               y={p.y * h}
               fontSize={p.size}

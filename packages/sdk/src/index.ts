@@ -6,7 +6,9 @@
 //   templates/  pickTemplate + subject-themed visual registry
 //   components/ RN UI primitives (QuestionCard, ChoiceButton, ReportButton)
 //   analytics.ts analytics.emit() abstraction (console in Phase 0)
-//   bloom.ts    Bloom filter for the `seen` impressions tier  (MVP-06)
+//
+// MVP-06 will land bloom.ts (Bloom filter for the `seen` impressions
+// tier) and add a `./bloom` entry to the package.json exports map.
 //
 // The barrel re-exports the bits that have stable public APIs. Anything
 // not re-exported here is reachable via the deep `@rcao-quiz/sdk/*`
@@ -32,6 +34,7 @@ export {
   SubjectEntrySchema,
   SubjectsFileSchema,
   // event payloads
+  FlagReasonSchema,
   QuestionImpressionParamsSchema,
   QuestionAnsweredParamsSchema,
   QuestionSkippedParamsSchema,
@@ -54,6 +57,7 @@ export type {
   Manifest,
   SubjectEntry,
   SubjectsFile,
+  FlagReason,
   QuestionImpressionParams,
   QuestionAnsweredParams,
   QuestionSkippedParams,

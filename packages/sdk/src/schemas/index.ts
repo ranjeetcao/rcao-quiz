@@ -76,7 +76,11 @@ export type GeneratorMeta = z.infer<typeof GeneratorMetaSchema>;
  * `correct_answer` is included — the app grades locally (ADR 0002). There is
  * no runtime API to "submit" an answer to.
  *
- * The `.refine` checks invariants Zod can't express structurally:
+ * `.strict()` rejects unknown keys at parse time so a typo in a content
+ * file fails loud at the pack-build step rather than silently dropping
+ * the field. This is the single-source-of-truth promise from ADR 0002.
+ *
+ * The two `.refine` checks cover invariants Zod can't express structurally:
  *   - `correct_answer` must equal one of the four `choices` exactly.
  *   - `choices` must contain four distinct strings (otherwise grading is
  *     ambiguous when the correct answer matches two slots).
@@ -95,6 +99,7 @@ export const QuestionSchema = z
     retired_at: z.string().datetime({ offset: true }).nullable(),
     retired_reason: z.string().nullable(),
   })
+  .strict()
   .refine((q) => q.choices.includes(q.correct_answer), {
     message: 'correct_answer must match one of choices exactly',
     path: ['correct_answer'],
@@ -115,14 +120,16 @@ export type Question = z.infer<typeof QuestionSchema>;
  * `generation_batch` groups packs built in the same run (`<YYYYMMDD>-a`).
  * `schema_version` is bumped on incompatible Pack-shape changes.
  */
-export const PackSchema = z.object({
-  pack_id: z.string().regex(/^pack_[a-z_]+_v\d+_\d{8}$/),
-  generation_batch: z.string().regex(/^\d{8}-[a-z]$/),
-  schema_version: z.literal(1),
-  built_at: z.string().datetime({ offset: true }),
-  subjects: z.array(SubjectSlugSchema).min(1),
-  questions: z.array(QuestionSchema).min(1),
-});
+export const PackSchema = z
+  .object({
+    pack_id: z.string().regex(/^pack_[a-z_]+_v\d+_\d{8}$/),
+    generation_batch: z.string().regex(/^\d{8}-[a-z]$/),
+    schema_version: z.literal(1),
+    built_at: z.string().datetime({ offset: true }),
+    subjects: z.array(SubjectSlugSchema).min(1),
+    questions: z.array(QuestionSchema).min(1),
+  })
+  .strict();
 export type Pack = z.infer<typeof PackSchema>;
 
 // ---------- Manifest ----------
@@ -132,26 +139,30 @@ export type Pack = z.infer<typeof PackSchema>;
  * discriminated union leaves room for `stats` packs (Phase 2) without
  * inventing a second manifest format.
  */
-export const ContentManifestEntrySchema = z.object({
-  kind: z.literal('content'),
-  pack_id: z.string(),
-  subject: SubjectSlugSchema,
-  url: z.string(),
-  sha256: z.string().regex(/^[0-9a-f]{64}$/),
-  bytes: z.number().int().positive(),
-  question_count: z.number().int().positive(),
-  built_at: z.string().datetime({ offset: true }),
-});
+export const ContentManifestEntrySchema = z
+  .object({
+    kind: z.literal('content'),
+    pack_id: z.string(),
+    subject: SubjectSlugSchema,
+    url: z.string(),
+    sha256: z.string().regex(/^[0-9a-f]{64}$/),
+    bytes: z.number().int().positive(),
+    question_count: z.number().int().positive(),
+    built_at: z.string().datetime({ offset: true }),
+  })
+  .strict();
 export type ContentManifestEntry = z.infer<typeof ContentManifestEntrySchema>;
 
-export const StatsManifestEntrySchema = z.object({
-  kind: z.literal('stats'),
-  pack_id: z.string(),
-  url: z.string(),
-  sha256: z.string().regex(/^[0-9a-f]{64}$/),
-  bytes: z.number().int().positive(),
-  built_at: z.string().datetime({ offset: true }),
-});
+export const StatsManifestEntrySchema = z
+  .object({
+    kind: z.literal('stats'),
+    pack_id: z.string(),
+    url: z.string(),
+    sha256: z.string().regex(/^[0-9a-f]{64}$/),
+    bytes: z.number().int().positive(),
+    built_at: z.string().datetime({ offset: true }),
+  })
+  .strict();
 export type StatsManifestEntry = z.infer<typeof StatsManifestEntrySchema>;
 
 export const ManifestEntrySchema = z.discriminatedUnion('kind', [
@@ -160,12 +171,14 @@ export const ManifestEntrySchema = z.discriminatedUnion('kind', [
 ]);
 export type ManifestEntry = z.infer<typeof ManifestEntrySchema>;
 
-export const ManifestSchema = z.object({
-  schema_version: z.literal(1),
-  built_at: z.string().datetime({ offset: true }),
-  packs: z.array(ManifestEntrySchema),
-  retired_question_ids: z.array(QuestionIdSchema),
-});
+export const ManifestSchema = z
+  .object({
+    schema_version: z.literal(1),
+    built_at: z.string().datetime({ offset: true }),
+    packs: z.array(ManifestEntrySchema),
+    retired_question_ids: z.array(QuestionIdSchema),
+  })
+  .strict();
 export type Manifest = z.infer<typeof ManifestSchema>;
 
 // ---------- subjects.json ----------
@@ -175,10 +188,12 @@ export type Manifest = z.infer<typeof ManifestSchema>;
  * runtime (subjects are baked into `SubjectSlugSchema`), but the pack
  * builder validates it so the file can't drift silently.
  */
-export const SubjectEntrySchema = z.object({
-  slug: SubjectSlugSchema,
-  display_name: z.string().min(1),
-});
+export const SubjectEntrySchema = z
+  .object({
+    slug: SubjectSlugSchema,
+    display_name: z.string().min(1),
+  })
+  .strict();
 export type SubjectEntry = z.infer<typeof SubjectEntrySchema>;
 
 export const SubjectsFileSchema = z.array(SubjectEntrySchema).min(1);
@@ -200,34 +215,45 @@ const QuestionEventBase = z.object({
 
 export const QuestionImpressionParamsSchema = QuestionEventBase.extend({
   dwell_ms: z.number().int().nonnegative(),
-});
+}).strict();
 export type QuestionImpressionParams = z.infer<typeof QuestionImpressionParamsSchema>;
 
 export const QuestionAnsweredParamsSchema = QuestionEventBase.extend({
   chosen_index: z.number().int().min(0).max(3),
   correct: z.boolean(),
   time_to_answer_ms: z.number().int().nonnegative(),
-});
+}).strict();
 export type QuestionAnsweredParams = z.infer<typeof QuestionAnsweredParamsSchema>;
 
 export const QuestionSkippedParamsSchema = QuestionEventBase.extend({
   dwell_ms: z.number().int().nonnegative(),
-});
+}).strict();
 export type QuestionSkippedParams = z.infer<typeof QuestionSkippedParamsSchema>;
 
+/**
+ * Flag reasons match the MVP-09 reason picker exactly. The four chips in
+ * the UI (`offensive | incorrect | confusing | other`) are this enum's
+ * values verbatim. Don't add a new value without updating the picker
+ * sheet copy in `apps/mobile/app/(modals)/report.tsx`.
+ */
+export const FlagReasonSchema = z.enum(['offensive', 'incorrect', 'confusing', 'other']);
+export type FlagReason = z.infer<typeof FlagReasonSchema>;
+
 export const QuestionFlaggedParamsSchema = QuestionEventBase.extend({
-  reason: z.enum(['wrong_answer', 'unclear', 'offensive', 'duplicate', 'other']),
+  reason: FlagReasonSchema,
   note: z.string().max(280).optional(),
-});
+}).strict();
 export type QuestionFlaggedParams = z.infer<typeof QuestionFlaggedParamsSchema>;
 
-export const PackDownloadedParamsSchema = z.object({
-  pack_id: z.string(),
-  subject: SubjectSlugSchema,
-  bytes: z.number().int().positive(),
-  duration_ms: z.number().int().nonnegative(),
-  cache_hit: z.boolean(),
-});
+export const PackDownloadedParamsSchema = z
+  .object({
+    pack_id: z.string(),
+    subject: SubjectSlugSchema,
+    bytes: z.number().int().positive(),
+    duration_ms: z.number().int().nonnegative(),
+    cache_hit: z.boolean(),
+  })
+  .strict();
 export type PackDownloadedParams = z.infer<typeof PackDownloadedParamsSchema>;
 
 /**

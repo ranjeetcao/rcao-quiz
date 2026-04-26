@@ -34,8 +34,9 @@ content/          Subject metadata + hand-written question JSON (the seed
                   corpus; AI generation pipeline lands in Phase 1).
 scripts/          Node-side tooling (pack builder, icon generator).
 docs/             ADRs, architecture, plans (active/ + completed/).
-.claude/          Agent harness — currently sparse. Being built out by
-                  docs/active/agentic-tooling-plan/ (this is task AGT-01).
+.claude/          Agent harness — agents/, commands/, hooks/, rules/,
+                  skills/, settings.json. Built by the agentic-tooling-plan
+                  (now retired in docs/completed/agentic-tooling-plan/).
 ```
 
 Workspaces are declared in [`pnpm-workspace.yaml`](pnpm-workspace.yaml):
@@ -101,7 +102,7 @@ outside this repo if/when it appears. Spotting a violation: any new top-level
 directory named `web/`, `website/`, `landing/`, or any dependency on `next`,
 `vite`, `react-dom` outside of Expo's web-export path. Anchor:
 [`README.md`](README.md) "Guiding principle" and the non-goals in
-`docs/active/agentic-tooling-plan/plan.md` §6.
+`docs/completed/agentic-tooling-plan/plan.md` §6.
 
 ### SDK purity.
 

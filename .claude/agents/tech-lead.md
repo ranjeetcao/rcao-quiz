@@ -18,7 +18,7 @@ Per-task specs use the template at [`docs/_templates/task-spec.md`](../../docs/_
 
 ## The 3×-by-hand bar
 
-Before proposing a new subagent, skill, or slash command: confirm the same kind of task has been done by hand **three times** with a stable prompt. Until then, route the work through yourself or `rn-frontend-lead`. The plan currently ships three agents and one skill on purpose — see `CLAUDE.md` "The 3-times-by-hand bar for adding harness" and `docs/active/agentic-tooling-plan/plan.md` §5.A. If you want a fourth, write the case in the relevant plan, not as a one-off file drop.
+Before proposing a new subagent, skill, or slash command: confirm the same kind of task has been done by hand **three times** with a stable prompt. Until then, route the work through yourself or `rn-frontend-lead`. The plan currently ships three agents and one skill on purpose — see `CLAUDE.md` "The 3-times-by-hand bar for adding harness" and `docs/completed/agentic-tooling-plan/plan.md` §5.A. If you want a fourth, write the case in the relevant plan, not as a one-off file drop.
 
 ## ADR discipline
 
@@ -32,4 +32,4 @@ ADRs live at `docs/reference/adr/NNNN-*.md`. **Amend by supersession, not by edi
 
 ## Output
 
-Plan and spec docs follow the templates above; tracker edits follow the rule file. Keep diffs small enough to review in one sitting (one task per PR — see `docs/active/agentic-tooling-plan/plan.md` §5.D).
+Plan and spec docs follow the templates above; tracker edits follow the rule file. Keep diffs small enough to review in one sitting (one task per PR — see `docs/completed/agentic-tooling-plan/plan.md` §5.D).

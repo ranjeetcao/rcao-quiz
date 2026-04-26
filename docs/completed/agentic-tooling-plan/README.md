@@ -3,7 +3,7 @@
 Import the agentic-architecture pattern from `../ai-travel-agent/` into rcao-quiz, **scaled down to a 2-package mobile-only repo**: a `CLAUDE.md` + `AGENTS.md` baseline, three core subagents (`code-reviewer`, `rn-frontend-lead`, `tech-lead`), two pre-commit hooks (typecheck + secrets, run as both real Git pre-commit *and* registered `PreToolUse`), one slash command (`/review-pr`), one context rule (`plan-tracking`), one thin RN/Expo skill capturing patterns burned in by MVP-01..03, a per-task `.md` spec template for forward use, and a committed policy on what in `.claude/` is tracked vs ignored.
 
 **Master Plan:** [plan.md](plan.md)
-**Status:** SUBSTANTIALLY-COMPLETE — 10 / 10 tasks done. Flip to COMPLETED + move to `docs/completed/` requires explicit approval per [`.claude/rules/plan-tracking.md`](../../../.claude/rules/plan-tracking.md).
+**Status:** COMPLETED — 10 / 10 tasks done. Plan retired; this directory is read-only as of the merge of PR #15 (`78ce5c8`).
 **Target Phase:** N/A (cross-cutting / DX)
 **Depends on:** None. Independent of MVP Skeleton; harmless to land in parallel.
 
@@ -19,7 +19,7 @@ Import the agentic-architecture pattern from `../ai-travel-agent/` into rcao-qui
 | AGT-06 | Context rule `.claude/rules/plan-tracking.md` — lifecycle states + tracker conventions | XS | Done (`2e7ee3b`) | -- |
 | AGT-07 | Per-task spec template (`docs/_templates/task-spec.md`) + Effort/Blocked-By columns on tracker (MVP-04+ only; shipped rows stay `—`) | S | Done (`dd91f9a`) | -- |
 | AGT-08 | `.gitignore` policy for `.claude/` — track agents/commands/hooks/rules/skills; ignore `*.local.*` + `worktrees/` | XS | Done (`47b067f`) | AGT-03, AGT-04, AGT-05, AGT-06, AGT-10 |
-| AGT-09 | QA pass + `docs/README.md` index update; flip plan to COMPLETED and move to `docs/completed/` | XS | In progress | AGT-01..AGT-08, AGT-10 |
+| AGT-09 | QA pass + `docs/README.md` index update; flip plan to COMPLETED and move to `docs/completed/` | XS | Done (`78ce5c8`) | AGT-01..AGT-08, AGT-10 |
 | AGT-10 | Thin `react-native-expo-patterns` skill — three rules with commit precedent (added in PR #3 review; reverses original §5.C "defer all skills") | XS | Done (`24c7814`) | -- |
 
 **Effort legend:** XS < 2h, S ≈ 2–4h, M ≈ 4–10h, L ≈ 10–20h, XL > 20h.

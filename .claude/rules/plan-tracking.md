@@ -13,9 +13,9 @@ the directory layout is [`docs/README.md`](../../docs/README.md).
   subfolder under the plan directory.
 - **Shipped:** `docs/completed/<plan-name>/` — the entire plan directory
   is moved here when every task is Done and exit criteria pass.
-- Real examples: [`docs/active/mvp-skeleton-plan/`](../../docs/active/mvp-skeleton-plan/),
-  [`docs/active/agentic-tooling-plan/`](../../docs/active/agentic-tooling-plan/),
+- Real in-flight examples: [`docs/active/mvp-skeleton-plan/`](../../docs/active/mvp-skeleton-plan/),
   [`docs/active/stats-and-social-proof-plan/`](../../docs/active/stats-and-social-proof-plan/).
+- Real shipped example: [`docs/completed/agentic-tooling-plan/`](../../docs/completed/agentic-tooling-plan/).
 
 ## Lifecycle states
 
@@ -79,7 +79,7 @@ criteria, Risks, Effort, Blocked by, Implementation notes.
 This applies to **forward work only**. MVP-01, MVP-02, and MVP-03 are
 already shipped (`611c680`, `a352ab5`, `7fdc174`) and do **not** get
 retroactive specs — see
-[`docs/active/agentic-tooling-plan/plan.md`](../../docs/active/agentic-tooling-plan/plan.md)
+[`docs/completed/agentic-tooling-plan/plan.md`](../../docs/completed/agentic-tooling-plan/plan.md)
 §6 ("No retroactive task-spec rewrites"). Their record is the tracker
 row plus the commit history; that is sufficient.
 

@@ -3,7 +3,7 @@
 Import the agentic-architecture pattern from `../ai-travel-agent/` into rcao-quiz, **scaled down to a 2-package mobile-only repo**: a `CLAUDE.md` + `AGENTS.md` baseline, three core subagents (`code-reviewer`, `rn-frontend-lead`, `tech-lead`), two pre-commit hooks (typecheck + secrets, run as both real Git pre-commit *and* registered `PreToolUse`), one slash command (`/review-pr`), one context rule (`plan-tracking`), one thin RN/Expo skill capturing patterns burned in by MVP-01..03, a per-task `.md` spec template for forward use, and a committed policy on what in `.claude/` is tracked vs ignored.
 
 **Master Plan:** [plan.md](plan.md)
-**Status:** PLANNING — 0 / 10 tasks done
+**Status:** SUBSTANTIALLY-COMPLETE — 10 / 10 tasks done. Flip to COMPLETED + move to `docs/completed/` requires explicit approval per [`.claude/rules/plan-tracking.md`](../../../.claude/rules/plan-tracking.md).
 **Target Phase:** N/A (cross-cutting / DX)
 **Depends on:** None. Independent of MVP Skeleton; harmless to land in parallel.
 
@@ -11,16 +11,16 @@ Import the agentic-architecture pattern from `../ai-travel-agent/` into rcao-qui
 
 | Task | Title | Effort | Status | Blocked By |
 |------|-------|--------|--------|------------|
-| AGT-01 | `CLAUDE.md` baseline — product, layout, dev commands, conventions (incl. 3×-by-hand bar), ADR pointers, known gaps | S | Pending | -- |
-| AGT-02 | `AGENTS.md` (compressed) — startup checklist, red lines, when-to-ask | XS | Pending | AGT-01 |
-| AGT-03 | Three project-local subagents (`code-reviewer`, `rn-frontend-lead`, `tech-lead`) | S | Pending | AGT-01, AGT-10 |
-| AGT-04 | Pre-commit hooks (dual-lane: husky + `PreToolUse`) — typecheck (staged TS only) + secrets scan (regex set written from scratch) | S | Pending | -- |
-| AGT-05 | `/review-pr` slash command — orchestrates `code-reviewer` against current branch | XS | Pending | AGT-03 |
-| AGT-06 | Context rule `.claude/rules/plan-tracking.md` — lifecycle states + tracker conventions | XS | Pending | -- |
-| AGT-07 | Per-task spec template (`docs/_templates/task-spec.md`) + Effort/Blocked-By columns on tracker (MVP-04+ only; shipped rows stay `—`) | S | Pending | -- |
-| AGT-08 | `.gitignore` policy for `.claude/` — track agents/commands/hooks/rules/skills; ignore `*.local.*` + `worktrees/` | XS | Pending | AGT-03, AGT-04, AGT-05, AGT-06, AGT-10 |
-| AGT-09 | QA pass + `docs/README.md` index update; flip plan to COMPLETED and move to `docs/completed/` | XS | Pending | AGT-01..AGT-08, AGT-10 |
-| AGT-10 | Thin `react-native-expo-patterns` skill — three rules with commit precedent (added in PR #3 review; reverses original §5.C "defer all skills") | XS | Pending | -- |
+| AGT-01 | `CLAUDE.md` baseline — product, layout, dev commands, conventions (incl. 3×-by-hand bar), ADR pointers, known gaps | S | Done (`de06951`) | -- |
+| AGT-02 | `AGENTS.md` (compressed) — startup checklist, red lines, when-to-ask | XS | Done (`fc9c428`) | AGT-01 |
+| AGT-03 | Three project-local subagents (`code-reviewer`, `rn-frontend-lead`, `tech-lead`) | S | Done (`3e6389f`) | AGT-01, AGT-10 |
+| AGT-04 | Pre-commit hooks (dual-lane: husky + `PreToolUse`) — typecheck (staged TS only) + secrets scan (regex set written from scratch) | S | Done (`20fd3bc`) | -- |
+| AGT-05 | `/review-pr` slash command — orchestrates `code-reviewer` against current branch | XS | Done (`82c7da9`) | AGT-03 |
+| AGT-06 | Context rule `.claude/rules/plan-tracking.md` — lifecycle states + tracker conventions | XS | Done (`2e7ee3b`) | -- |
+| AGT-07 | Per-task spec template (`docs/_templates/task-spec.md`) + Effort/Blocked-By columns on tracker (MVP-04+ only; shipped rows stay `—`) | S | Done (`dd91f9a`) | -- |
+| AGT-08 | `.gitignore` policy for `.claude/` — track agents/commands/hooks/rules/skills; ignore `*.local.*` + `worktrees/` | XS | Done (`47b067f`) | AGT-03, AGT-04, AGT-05, AGT-06, AGT-10 |
+| AGT-09 | QA pass + `docs/README.md` index update; flip plan to COMPLETED and move to `docs/completed/` | XS | In progress | AGT-01..AGT-08, AGT-10 |
+| AGT-10 | Thin `react-native-expo-patterns` skill — three rules with commit precedent (added in PR #3 review; reverses original §5.C "defer all skills") | XS | Done (`24c7814`) | -- |
 
 **Effort legend:** XS < 2h, S ≈ 2–4h, M ≈ 4–10h, L ≈ 10–20h, XL > 20h.
 **Total estimated effort:** ~13–19h (~1.5 weeks at MVP-skeleton-plan cadence; AGT-10 adds ~1h).

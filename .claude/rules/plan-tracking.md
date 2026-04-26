@@ -91,3 +91,12 @@ context, not to reformat. Rewriting an archived plan invalidates its
 audit trail and makes the commit it was archived in misleading. If a
 shipped plan needs amendment, open a new plan that supersedes it; leave
 the original in `completed/` untouched.
+
+**One narrow exception: the archival commit itself.** When the final
+task PR for a plan merges and the plan moves from `docs/active/` to
+`docs/completed/`, that same commit may flip the tracker `README.md`
+status to `COMPLETED` and mark the closing task `Done (<merge-hash>)`.
+After that commit lands, the read-only rule applies in full — no
+follow-up edits, no typo fixes inside `docs/completed/`. This carve-out
+exists because the closing-entry has to live somewhere; placing it on
+the archival commit keeps it in the audit trail.

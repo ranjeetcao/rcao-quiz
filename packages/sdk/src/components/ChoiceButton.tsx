@@ -47,7 +47,17 @@ export interface ChoiceButtonProps {
   onPress: () => void;
 }
 
-export function ChoiceButton({
+// Wrapped in React.memo (below) so the FlatList of cards in MVP-05
+// doesn't re-render every button on every parent state change. Each
+// prop is either a primitive (label/state/index/accentColor/textColor)
+// or a stable callback (onPress, captured by the parent), so memo's
+// default shallow comparator is sufficient.
+//
+// Defined as a named declaration first then wrapped — the inline
+// `React.memo(function Name(...): ReturnType { ... })` form is valid
+// TypeScript but babel-preset-expo's parser rejects the return-type
+// annotation on a named function expression inside a call.
+function ChoiceButtonImpl({
   label,
   state,
   index,
@@ -106,6 +116,8 @@ export function ChoiceButton({
     </Pressable>
   );
 }
+
+export const ChoiceButton = React.memo(ChoiceButtonImpl);
 
 interface ChoiceVisual {
   bg: string;

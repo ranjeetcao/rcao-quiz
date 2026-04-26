@@ -25,11 +25,13 @@ import { QuestionCard } from '@rcao-quiz/sdk/components';
 
 // Two hand-picked samples — one math, one geography — chosen so the user
 // can see two different subject templates without scrolling far. The id
-// shape matches the on-disk Question schema; in MVP-04+ the app will
-// load real questions from the pack files instead of inlining them.
+// shape matches the on-disk Question schema (q_ + 26 Crockford-base32
+// chars: 0-9 A-H J K M N P-T V-Z, i.e. ULID alphabet — no I, L, O, U);
+// in MVP-04+ the app will load real questions from the pack files
+// instead of inlining them.
 const SAMPLES: readonly Question[] = [
   {
-    id: 'q_01HX3F7Z8K0000000PREVIEW001',
+    id: 'q_01HX3F7Z8K000000000PREV001',
     mode: 'text',
     subject: 'math',
     prompt_text: 'What is 7 × 8?',
@@ -42,7 +44,7 @@ const SAMPLES: readonly Question[] = [
     retired_reason: null,
   },
   {
-    id: 'q_01HX3F7Z8K0000000PREVIEW002',
+    id: 'q_01HX3F7Z8K000000000PREV002',
     mode: 'text',
     subject: 'geography',
     prompt_text: 'Which river flows through Paris?',

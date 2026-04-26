@@ -11,9 +11,9 @@
     "./grading": "./src/grading.ts",
     "./templates": "./src/templates/index.ts",
     "./components": "./src/components/index.ts",
-    "./bloom": "./src/bloom.ts",
     "./analytics": "./src/analytics.ts"
   },
+  "sideEffects": false,
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

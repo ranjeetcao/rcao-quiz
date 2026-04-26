@@ -19,6 +19,15 @@ config.watchFolders = [workspaceRoot];
 //    URL-path-based bundle requests (e.g. `/../../node_modules/expo-router/...`)
 //    fall through to the project root, Metro can still find the file in the
 //    workspace-root node_modules.
+//
+//    *** Load-bearing on .npmrc hoisting ***
+//    This config relies on the workspace-root .npmrc setting
+//    `node-linker=hoisted` + `shamefully-hoist=true` to put Expo's deps
+//    (expo-router, react-native-svg, etc.) at the workspace-root
+//    node_modules where the second `nodeModulesPaths` entry can find them.
+//    If the .npmrc is removed or pnpm is swapped for a strict-isolation
+//    package manager, restore `disableHierarchicalLookup = true` and
+//    install per-app, or this config silently breaks.
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),

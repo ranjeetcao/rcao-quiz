@@ -7,9 +7,9 @@ alongside the commit hash recorded in the plan's README.md tracker.
 
 # <TASK-ID> — <Short Title>
 
-**Status:** <Pending | IN-DEV | Done>
+**Status:** <Pending | In progress | Done (`<short-hash>`)>
 **Effort:** <XS | S | M | L | XL>
-**Blocked by:** <comma-separated TASK-IDs, or "—">
+**Blocked by:** <comma-separated TASK-IDs, or `--` for an active task with no blocker (em-dash `—` is reserved for shipped rows in trackers)>
 
 ## Goal
 
@@ -30,6 +30,12 @@ in plan.md instead.>
 - <What could surprise us. Platform quirks, schema migrations, dependency
   upgrades, ordering with other in-flight tasks.>
 - <One line per risk. If a risk has a known mitigation, name it.>
+
+## Out of scope
+
+- <What this task explicitly does NOT cover. Half the value of a spec is the
+  boundary; cut scope here, not in review.>
+- <Link to the task or follow-up that picks up the deferred work.>
 
 ## Test plan
 

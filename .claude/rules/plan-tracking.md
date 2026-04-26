@@ -54,7 +54,12 @@ columns, in order:
 - **Status** — `Pending`, `In progress`, `Done (<short-hash>)`, or one of
   the lifecycle states above. Individual tasks use `Done`; the plan as
   a whole uses the lifecycle states.
-- **Blocked By** — comma-separated task IDs, or `--` if independent.
+- **Blocked By** — comma-separated task IDs, `--` (two hyphens) if
+  independent (an active task with no blocker), or `—` (em dash) for
+  shipped rows where the field is intentionally not backfilled. The
+  same em-dash convention applies to **Effort** on shipped rows per
+  plan-tracker §6 (no retroactive task-spec rewrites). Worked example
+  in [`docs/active/mvp-skeleton-plan/README.md`](../../docs/active/mvp-skeleton-plan/README.md).
 
 When a task ships, mark it `Done (<merge-commit-short-hash>)` — e.g.
 `Done (7fdc174)`. The hash is the merge commit on `main`, not the

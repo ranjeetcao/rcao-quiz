@@ -8,8 +8,9 @@ the directory layout is [`docs/README.md`](../../docs/README.md).
 
 - **In-flight:** `docs/active/<plan-name>/` containing at least
   `plan.md` (the master spec) and `README.md` (the status tracker).
-  Per-task specs sit at the plan root while pending; once shipped they
-  move into a `completed/` subfolder under the plan directory.
+  Per-task specs sit at the plan root while pending; once the **task's
+  PR** ships (not the whole plan), the spec moves into a `completed/`
+  subfolder under the plan directory.
 - **Shipped:** `docs/completed/<plan-name>/` — the entire plan directory
   is moved here when every task is Done and exit criteria pass.
 - Real examples: [`docs/active/mvp-skeleton-plan/`](../../docs/active/mvp-skeleton-plan/),

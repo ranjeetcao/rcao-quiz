@@ -44,14 +44,20 @@ export interface ChoiceButtonProps {
   accentColor: string;
   /** Text colour for the label. Comes from the template. */
   textColor: string;
-  onPress: () => void;
+  /**
+   * Called with this button's `label` when tapped. Parent passes one
+   * stable `onAnswer` to all four buttons; the per-button closure that
+   * wires `label` into the call lives in this component's own render
+   * scope so the memo's shallow comparator sees identity-stable props.
+   */
+  onAnswer: (label: string) => void;
 }
 
 // Wrapped in React.memo (below) so the FlatList of cards in MVP-05
-// doesn't re-render every button on every parent state change. Each
-// prop is either a primitive (label/state/index/accentColor/textColor)
-// or a stable callback (onPress, captured by the parent), so memo's
-// default shallow comparator is sufficient.
+// doesn't re-render every button on every parent state change. All
+// props are either primitives (label/state/index/accentColor/textColor)
+// or one stable callback (onAnswer, captured once by the parent), so
+// memo's default shallow comparator is sufficient.
 //
 // Defined as a named declaration first then wrapped — the inline
 // `React.memo(function Name(...): ReturnType { ... })` form is valid
@@ -63,7 +69,7 @@ function ChoiceButtonImpl({
   index,
   accentColor,
   textColor,
-  onPress,
+  onAnswer,
 }: ChoiceButtonProps): React.ReactElement {
   const isInteractive = state === 'idle';
   const visual = visualForState(state, accentColor);
@@ -94,7 +100,7 @@ function ChoiceButtonImpl({
       accessibilityRole="button"
       accessibilityLabel={`${INDEX_LETTERS[index] ?? ''}. ${label}`}
       accessibilityState={{ disabled: !isInteractive, selected: state !== 'idle' }}
-      onPress={isInteractive ? onPress : undefined}
+      onPress={isInteractive ? () => onAnswer(label) : undefined}
       style={buttonStyle}
     >
       <View style={[styles.marker, { borderColor: markerBorder }]}>

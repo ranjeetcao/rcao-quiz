@@ -103,6 +103,11 @@ export function QuestionCard({
           // Composite key — index + choice — so the buttons don't remount
           // mid-reveal if the picker ever shuffles choice order, while
           // still being stable when the same content re-renders.
+          //
+          // `onAnswer` is forwarded as-is (one stable identity for all
+          // four buttons); ChoiceButton wires `label` into its own
+          // onPress closure so React.memo's shallow comparator can
+          // actually short-circuit re-renders during reveal.
           <ChoiceButton
             key={`${i}-${choice}`}
             label={choice}
@@ -110,7 +115,7 @@ export function QuestionCard({
             state={choiceState(choice, question.correct_answer, revealedAnswer)}
             accentColor={tpl.accentColor}
             textColor={tpl.promptColor}
-            onPress={() => onAnswer(choice)}
+            onAnswer={onAnswer}
           />
         ))}
       </View>

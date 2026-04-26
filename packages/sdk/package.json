@@ -13,7 +13,7 @@
     "./components": "./src/components/index.ts",
     "./analytics": "./src/analytics.ts"
   },
-  "sideEffects": false,
+  "sideEffects": ["./src/analytics.ts"],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

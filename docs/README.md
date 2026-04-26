@@ -16,7 +16,7 @@ Plans progress through directories: `active/` → `completed/`.
 
 | Plan | Status | Progress | Priority | Next Action |
 |------|--------|----------|----------|-------------|
-| [MVP Skeleton](active/mvp-skeleton-plan/) | IN-DEV | 3/10 | Must | MVP-04 (pack builder script) |
+| [MVP Skeleton](active/mvp-skeleton-plan/) | IN-DEV | 3/10 | Must | MVP-04 (pack builder script) — [PR #5](https://github.com/ranjeetcao/rcao-quiz/pull/5) open |
 | [Stats & Social-Proof](active/stats-and-social-proof-plan/) | PLANNING | 0/10 | Should | Queued behind MVP Skeleton + Phase 1 |
 | [Agentic Tooling](active/agentic-tooling-plan/) | SUBSTANTIALLY-COMPLETE | 10/10 | Should | Approval to flip to COMPLETED + move to `docs/completed/`. |
 

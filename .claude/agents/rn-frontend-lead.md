@@ -25,11 +25,11 @@ Cite the rule by number when you apply it. If a change in this surface ignores a
 
 - The reels feed (vertical FlatList with `pagingEnabled` + snap) lands in **MVP-05**. Designs assume one card per viewport, 60fps scroll.
 - The iOS 26.2 layout fix in commit `2e26276` corrected `SafeAreaView` deprecation + `flex:1`-via-className issues. Don't reintroduce either.
-- **SDK purity ban list applies to anything you write under `packages/sdk/`.** Components in that subtree cannot import `expo-router`, `expo-haptics`, `nativewind`, `react-native-mmkv`, `expo-secure-store`, `expo-sqlite`, or the seven additions from commit `8bd3d3b`. Use `StyleSheet`, accept callbacks instead of firing haptics, let the consumer wire navigation. Enforced by `eslint.config.mjs`; CLAUDE.md's "SDK purity" section is authoritative.
+- **SDK purity ban list applies to anything you write under `packages/sdk/`** — see `CLAUDE.md` § "SDK purity" and `eslint.config.mjs` (`no-restricted-imports`) for the authoritative list. Use `StyleSheet`, accept callbacks instead of firing haptics, let the consumer wire navigation.
 
 ## Test discipline
 
-Before claiming a UI task done: **verify on the iOS 26.2 simulator with the Expo dev client** (`pnpm dev`, then press `i`). Typecheck and bundle compile passed for commit `2e26276` and the bug only surfaced on device — visual regressions in this stack do not show up in `pnpm typecheck` or `pnpm test`. A green CLI pass is necessary, not sufficient.
+Before claiming a UI task done: **verify on the iOS 26.2 simulator** (`pnpm dev`, then press `i`) **and on at least one Android target** (same command, then press `a`). Typecheck and bundle compile passed for commit `2e26276` and the bug only surfaced on device — visual regressions in this stack do not show up in `pnpm typecheck` or `pnpm test`. A green CLI pass is necessary, not sufficient. The failure modes between platforms diverge (`2e26276` was iOS-specific; the next one may not be), so single-platform verification is not enough.
 
 Always run, before declaring done: `pnpm -r typecheck && pnpm -r test && pnpm lint`.
 

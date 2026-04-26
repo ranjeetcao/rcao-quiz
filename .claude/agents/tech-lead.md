@@ -12,12 +12,7 @@ Authoring under `docs/` and routing implementation work to the right specialist.
 
 ## Plan format awareness
 
-Plans live at `docs/active/<plan>/{plan.md, README.md}` (and on completion move to `docs/completed/<plan>/`, untouched thereafter). Lifecycle states, per [`.claude/rules/plan-tracking.md`](../rules/plan-tracking.md):
-
-```
-PLANNING → APPROVED → IN-DEV → SUBSTANTIALLY-COMPLETE → COMPLETED
-                                                      ↘ DEFERRED
-```
+Plans live at `docs/active/<plan>/{plan.md, README.md}` (and on completion move to `docs/completed/<plan>/`, untouched thereafter). Lifecycle states + transitions are defined in [`.claude/rules/plan-tracking.md`](../rules/plan-tracking.md) — read that, don't re-derive them here. Notably, **`DEFERRED` is reachable from any state** (paused or abandoned; the plan stays in `docs/active/` with the state set so the reason stays visible) and the flip to `COMPLETED` requires explicit user approval.
 
 Per-task specs use the template at [`docs/_templates/task-spec.md`](../../docs/_templates/task-spec.md) (sections: Goal, Acceptance criteria, Risks, Effort, Blocked by, Test plan). Forward-only — do not back-fill specs for shipped tasks (MVP-01/02/03; commits `611c680`, `a352ab5`, `7fdc174`). The tracker README's "Tasks at a glance" table uses the columns in the rule file; mark a row `Done (<short-hash>)` only with the **merge commit on `main`**, not the feature-branch tip.
 

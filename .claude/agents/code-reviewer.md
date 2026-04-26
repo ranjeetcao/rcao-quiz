@@ -24,20 +24,20 @@ Run each against the diff above. For each, emit one line: **Found** (with file/l
 
 3. **No secrets in staged content.** Defense-in-depth — the husky + `PreToolUse` hook at `.claude/hooks/pre-commit-secrets.sh` already blocks the six credential shapes listed there. Re-run the same scan on the diff and surface any hit so review catches what slipped past `--no-verify` (which the bypass policy in AGENTS.md requires a reason for).
 
-4. **Tests for new public SDK exports.** Every new symbol exported from `packages/sdk/src/index.ts` (or any re-exported path) needs a corresponding Vitest spec under `packages/sdk/src/**/*.test.ts`. Missing test → flag.
+4. **Tests for new non-component public SDK exports.** Every new symbol exported from `packages/sdk/src/{schemas,grading,analytics,bloom,templates}*` (or re-exports of those) needs a corresponding Vitest spec under `packages/sdk/src/**/*.test.ts`. **Components in `packages/sdk/src/components/` are exempt** — they're verified on the iOS / Android simulator by `rn-frontend-lead`, not by Vitest. Missing test on a non-component export → flag.
 
 5. **`correct_answer ∈ choices` invariant.** Any new or modified `content/questions/**/*.json` must satisfy `question.correct_answer ∈ question.choices`. Parse the file, compare, flag mismatches by file path.
 
 ## Output format
 
-A markdown checklist, one row per check, in the order above. Example row:
+One row per check, in the order above. Use the verdict words **PASS** / **FAIL** / **N/A** (not checkboxes — `[x]` reads as "passed" in conventional markdown but here would mean "problem found"; words avoid that footgun). Example:
 
 ```
-- [x] (1) Strict Zod schemas — Found: packages/sdk/src/schemas/index.ts:142 (new ReportSchema missing .strict())
-- [ ] (2) SDK ban list — Not found
-- [ ] (3) Secrets — Not found
-- [-] (4) Tests for new SDK exports — N/A (no new exports in diff)
-- [x] (5) correct_answer invariant — Found: content/questions/math/q_01HX...json (correct_answer "42" not in choices)
+- **FAIL** (1) Strict Zod schemas — packages/sdk/src/schemas/index.ts:142 (new ReportSchema missing .strict())
+- **PASS** (2) SDK ban list — clean
+- **PASS** (3) Secrets — clean
+- **N/A** (4) Tests for new non-component SDK exports — no new exports in diff
+- **FAIL** (5) correct_answer invariant — content/questions/math/q_01HX...json (correct_answer "42" not in choices)
 ```
 
-`/review-pr` (AGT-05) renders this verbatim. Keep ordering and the (N) numbering stable so downstream tooling can parse it.
+`/review-pr` (AGT-05) renders this verbatim. Keep ordering, the (N) numbering, and the verdict-word vocabulary stable so downstream tooling can parse it.

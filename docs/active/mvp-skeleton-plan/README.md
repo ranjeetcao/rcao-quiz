@@ -11,9 +11,9 @@ Prove the entire rcao-quiz loop end-to-end on **iOS Simulator + Android Emulator
 
 | Task | Title | Effort | Status | Blocked By |
 |------|-------|--------|--------|------------|
-| MVP-01 | Monorepo scaffold (pnpm workspaces: `apps/mobile` Expo app, `packages/sdk`, `scripts/`) | M | Done (`611c680`) | -- |
-| MVP-02 | Content repo structure (`content/subjects.json`, `content/prompt_templates/`, `content/questions/`) + 50 hand-written text Qs across 3 subjects | S | Done (`a352ab5`) | -- |
-| MVP-03 | `@quiz/sdk` — Zod schemas (Question, Pack, Manifest, GA4 events), grading helper, `QuestionCard` template renderer for RN, analytics abstraction (console logger in Phase 0) | M | Done (`7fdc174`) | MVP-01 |
+| MVP-01 | Monorepo scaffold (pnpm workspaces: `apps/mobile` Expo app, `packages/sdk`, `scripts/`) | — | Done (`611c680`) | — |
+| MVP-02 | Content repo structure (`content/subjects.json`, `content/prompt_templates/`, `content/questions/`) + 50 hand-written text Qs across 3 subjects | — | Done (`a352ab5`) | MVP-01 |
+| MVP-03 | `@quiz/sdk` — Zod schemas (Question, Pack, Manifest, GA4 events), grading helper, `QuestionCard` template renderer for RN, analytics abstraction (console logger in Phase 0) | — | Done (`7fdc174`) | MVP-01 |
 | MVP-04 | Pack builder script (`scripts/packs-build.ts`) — reads `content/`, writes pack JSONs + manifest to local `./packs/`; Expo dev server serves them as static assets via `expo-asset` or a local HTTP server | S | Pending | MVP-02, MVP-03 |
 | MVP-05 | Reels feed UI on `FlatList` with paging-snap — `QuestionCard`, subject templates (`expo-linear-gradient` + `react-native-svg`), report button, haptics on answer | L | Pending | MVP-03 |
 | MVP-06 | App storage — `expo-sqlite` for pack cache + dedupe (acted ring buffer, bloom filter blob, flag-dedupe table); `react-native-mmkv` for personal stats; `expo-secure-store` for `anon_guest_id` | M | Pending | MVP-03 |
@@ -23,6 +23,7 @@ Prove the entire rcao-quiz loop end-to-end on **iOS Simulator + Android Emulator
 | MVP-10 | Local dev tooling + QA pass — `.env.example`, README quickstart for Expo, end-to-end walk-through on iOS Simulator and one Android target | S | Pending | MVP-07, MVP-08, MVP-09 |
 
 **Effort legend:** XS < 2h, S ≈ 2–4h, M ≈ 4–10h, L ≈ 10–20h, XL > 20h.
+**Dash conventions:** `—` (em dash) marks shipped rows where Effort is intentionally not backfilled per plan §6 (no retroactive task-spec rewrites). `Blocked By` reflects the actual dep graph for *every* row, shipped or pending — those are still-true facts about ordering, not retrospective estimates. An active task with no blocker uses `--` (two hyphens).
 
 ## Exit criteria
 

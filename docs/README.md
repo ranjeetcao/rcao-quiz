@@ -4,7 +4,7 @@
 
 Plans progress through directories: `active/` → `completed/`.
 
-- **`active/`** — plans with work remaining (planning, approved, in-dev, substantially-complete, or deferred). Within each plan: pending task specs at the plan root, shipped specs in a `completed/` subfolder.
+- **`active/`** — plans with work remaining (planning, approved, in-dev, substantially-complete, or deferred). Within each plan: pending task specs at the plan root (template: [`docs/_templates/task-spec.md`](_templates/task-spec.md)), shipped specs in a `completed/` subfolder.
 - **`completed/`** — all tasks shipped. Entire plan directory archived here. Read-only.
 - **`reference/`** — non-plan docs (architecture, ADRs, long-lived specs).
 
@@ -16,13 +16,14 @@ Plans progress through directories: `active/` → `completed/`.
 
 | Plan | Status | Progress | Priority | Next Action |
 |------|--------|----------|----------|-------------|
-| [MVP Skeleton](active/mvp-skeleton-plan/) | PLANNING | 0/10 | Must | MVP-01 (monorepo scaffold + Expo app) |
+| [MVP Skeleton](active/mvp-skeleton-plan/) | IN-DEV | 3/10 | Must | MVP-04 (pack builder script) — [PR #5](https://github.com/ranjeetcao/rcao-quiz/pull/5) open |
 | [Stats & Social-Proof](active/stats-and-social-proof-plan/) | PLANNING | 0/10 | Should | Queued behind MVP Skeleton + Phase 1 |
-| [Agentic Tooling](active/agentic-tooling-plan/) | PLANNING | 0/9 | Should | AGT-01 (`CLAUDE.md` baseline). Independent of MVP Skeleton — can land in parallel. |
 
 ## Completed Plans
 
-_None yet._
+| Plan | Tasks | Notes |
+|------|-------|-------|
+| [Agentic Tooling](completed/agentic-tooling-plan/) | 10/10 | Imported the agentic-architecture pattern from `ai-travel-agent` scaled down to a 2-package mobile-only repo. Retired in PR #15 (`78ce5c8`). |
 
 ## Reference
 

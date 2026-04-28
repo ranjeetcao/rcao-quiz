@@ -78,3 +78,12 @@ __pycache__/
 *.key
 *credentials*.json
 serviceAccount*.json
+
+# Claude Code harness — track shared, ignore local
+# Tracked (the harness travels with the repo): agents/, commands/, hooks/,
+# rules/, skills/, settings.json. Ignored below: per-machine overrides and
+# runtime artifacts.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
+.claude/**/*.local.*

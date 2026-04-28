@@ -14,7 +14,7 @@ Prove the entire rcao-quiz loop end-to-end on **iOS Simulator + Android Emulator
 | MVP-01 | Monorepo scaffold (pnpm workspaces: `apps/mobile` Expo app, `packages/sdk`, `scripts/`) | — | Done (`611c680`) | — |
 | MVP-02 | Content repo structure (`content/subjects.json`, `content/prompt_templates/`, `content/questions/`) + 50 hand-written text Qs across 3 subjects | — | Done (`a352ab5`) | MVP-01 |
 | MVP-03 | `@quiz/sdk` — Zod schemas (Question, Pack, Manifest, GA4 events), grading helper, `QuestionCard` template renderer for RN, analytics abstraction (console logger in Phase 0) | — | Done (`7fdc174`) | MVP-01 |
-| MVP-04 | Pack builder script (`scripts/packs-build.ts`) — reads `content/`, writes pack JSONs + manifest to local `./packs/`; Expo dev server serves them as static assets via `expo-asset` or a local HTTP server | S | Done (this PR) | MVP-02, MVP-03 |
+| MVP-04 | Pack builder script (`scripts/packs-build.ts`) — reads `content/`, writes pack JSONs + manifest to local `./packs/`; Expo dev server serves them as static assets via `expo-asset` or a local HTTP server | S | Done (`7c0da9a`) | MVP-02, MVP-03 |
 | MVP-05 | Reels feed UI on `FlatList` with paging-snap — `QuestionCard`, subject templates (`expo-linear-gradient` + `react-native-svg`), report button, haptics on answer | L | Pending | MVP-03 |
 | MVP-06 | App storage — `expo-sqlite` for pack cache + dedupe (acted ring buffer, bloom filter blob, flag-dedupe table); `react-native-mmkv` for personal stats; `expo-secure-store` for `anon_guest_id` | M | Pending | MVP-03 |
 | MVP-07 | Wire app to packs — fetch manifest + packs from local pack server, feed picker with two-tier dedupe applied | M | Pending | MVP-04, MVP-05, MVP-06 |

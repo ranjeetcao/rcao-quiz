@@ -107,7 +107,21 @@ export const QuestionSchema = z
   .refine((q) => new Set(q.choices).size === q.choices.length, {
     message: 'choices must be distinct',
     path: ['choices'],
-  });
+  })
+  .refine(
+    (q) => q.status !== 'approved' || typeof q.generator_meta.approved_at === 'string',
+    {
+      // The pack builder (MVP-04) derives `Pack.built_at` from
+      // `max(generator_meta.approved_at)` across the questions in a
+      // pack. Without this guard, a question that's marked `approved`
+      // but missing `approved_at` would slip past schema validation
+      // and fail the build at `maxIso(...)` with a less actionable
+      // error. Pre-approval lifecycle states (`pending`/`flagged`/
+      // `retired`) don't need it because they never reach the builder.
+      message: 'approved questions must have generator_meta.approved_at set',
+      path: ['generator_meta', 'approved_at'],
+    },
+  );
 export type Question = z.infer<typeof QuestionSchema>;
 
 // ---------- Pack ----------
